@@ -168,9 +168,9 @@ Put the two exports in `~/.zshrc` / `~/.bashrc`. `CLAUDE_CODE_STOP_HOOK_BLOCK_CA
 |---|---|
 | Claude Code (CLI, desktop app, Remote Control) ≥ 2.1.139 | ✅ supported |
 | claude.ai web / mobile chat | ❌ cannot run a session unattended |
-| OpenAI Codex CLI, Cursor, Gemini CLI, DeepSeek, Aider, … | ❌ not supported — the skill, the `/sleep` command and both hooks are Claude Code plugin mechanisms |
+| OpenAI Codex CLI, Cursor, Gemini CLI, Copilot CLI, … | ❌ not yet — the skill, the `/sleep` command and both hooks are packaged as a Claude Code plugin |
 
-Porting the *procedure* (`SKILL.md`) to another harness is possible; porting the *loop and the guards* is not, because they rely on Claude Code's Stop and PreToolUse hooks. Codex users may get part of the way with its native `/goal`. PRs welcome.
+This plugin does not use `/goal`; it is built on Claude Code's Stop and PreToolUse hooks. Codex, Cursor, Gemini CLI and Copilot CLI all have stop-hook equivalents (see [goal-loop](https://github.com/bodecloud/goal-loop) for a cross-harness example), so a port is feasible: the procedure (`SKILL.md`) moves as-is, the two shell guards need each harness's hook format. PRs welcome.
 
 ## What's in the box
 

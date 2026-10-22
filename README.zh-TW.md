@@ -168,9 +168,9 @@ claude plugin marketplace remove jaylooloomi
 |---|---|
 | Claude Code（CLI、桌面版、Remote Control）≥ 2.1.139 | ✅ 支援 |
 | claude.ai 網頁 / 手機聊天 | ❌ 無法無人看管地跑 session |
-| OpenAI Codex CLI、Cursor、Gemini CLI、DeepSeek、Aider … | ❌ 不支援——skill、`/sleep` 指令、兩種 hook 都是 Claude Code 的 plugin 機制 |
+| OpenAI Codex CLI、Cursor、Gemini CLI、Copilot CLI … | ❌ 尚未——skill、`/sleep` 指令、兩種 hook 目前都打包成 Claude Code plugin |
 
-把*流程*（`SKILL.md`）移植到其他環境是可能的；把*迴圈和防線*移植過去不行，因為它們依賴 Claude Code 的 Stop 與 PreToolUse hook。Codex 使用者可以用它原生的 `/goal` 做到一部分。歡迎 PR。
+這個 plugin 沒有用 `/goal`，它建立在 Claude Code 的 Stop 與 PreToolUse hook 上。Codex、Cursor、Gemini CLI、Copilot CLI 都有等價的 stop hook 機制（跨環境範例見 [goal-loop](https://github.com/bodecloud/goal-loop)），所以移植可行：流程（`SKILL.md`）原樣搬過去，兩個 shell 防線改成各家的 hook 格式。歡迎 PR。
 
 ## 內容物
 
