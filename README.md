@@ -1,22 +1,23 @@
 # i-want-to-sleep
 
-說「我要睡覺了」，Claude Code 接手：開分支 → 收尾對話中未完成的項目 → 持續調研並實作加分項 → 早上留一頁審閱簡報。
+[繁體中文](README.zh-TW.md)
 
-## 零件
+Say **"I'm going to sleep"** in a Claude Code session and Claude takes over until morning:
+opens a branch → finishes whatever the conversation left unfinished → keeps researching
+competitors and best practices, picks the highest-value idea, implements and tests it,
+commits, and moves on to the next one → leaves you a one-page report and a pushed branch
+ready for a merge request.
 
-| 檔案 | 作用 |
-|---|---|
-| `skills/night-shift-job-generator/SKILL.md` | 怎麼做：scope → 收尾 → 調研 → 評分 → 實作 → result |
-| `commands/sleep.md` | `/i-want-to-sleep:sleep` 一個指令觸發 |
-| `hooks/hooks.json` + `scripts/night-shift-stop.sh` | Stop hook：夜班中把 Claude 推回去繼續；時間到或回合用完就要求收工 |
-| `scripts/guard-bash.sh` / `guard-write.sh` | PreToolUse 硬防線：push 只放行 night-shift 分支；擋危險 git / 套件安裝 / 禁改清單 |
+## Install
 
-所有 hook 只在 `.agent-pipeline/ACTIVE` 存在時生效，白天不干擾。
+### Ask your agent
 
-## 安裝
+Paste this into Claude Code:
 
-### 給 AI agent（Claude Code）
-如果使用者對你說「幫我安裝 https://github.com/jaylooloomi/i-want-to-sleep」，請直接在 shell 執行：
+> Install https://github.com/jaylooloomi/i-want-to-sleep
+
+**If you are the AI agent reading this:** run these three commands in the shell, then
+tell the user to read [Before each night](#before-each-night).
 
 ```bash
 claude plugin marketplace add jaylooloomi/i-want-to-sleep
@@ -24,52 +25,120 @@ claude plugin install i-want-to-sleep@i-want-to-sleep
 claude plugin list
 ```
 
-然後告訴使用者：安裝完成，啟用前需設定 `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0` 並以 `--dangerously-skip-permissions` 啟動（見下節），之後在對話裡說「我要睡覺了」或下 `/i-want-to-sleep:sleep`。
+### One-liner
 
-### 給人
 ```bash
 curl -fsSL https://raw.githubusercontent.com/jaylooloomi/i-want-to-sleep/main/install.sh | bash
 ```
-或在 Claude Code 對話裡：`/plugin marketplace add jaylooloomi/i-want-to-sleep` → `/plugin install i-want-to-sleep@i-want-to-sleep`。
 
-### 開發 / 試用（不安裝）
+### Inside a Claude Code session
+
+```
+/plugin marketplace add jaylooloomi/i-want-to-sleep
+/plugin install i-want-to-sleep@i-want-to-sleep
+```
+
+### Step by step (CLI)
+
+```bash
+# 1. Register this repo as a plugin marketplace
+claude plugin marketplace add jaylooloomi/i-want-to-sleep
+
+# 2. Install the plugin from it
+claude plugin install i-want-to-sleep@i-want-to-sleep
+
+# 3. Confirm
+claude plugin list            # should show i-want-to-sleep@i-want-to-sleep  Status: enabled
+claude plugin details i-want-to-sleep
+```
+
+### Try without installing
+
 ```bash
 git clone https://github.com/jaylooloomi/i-want-to-sleep.git
-claude plugin validate ./i-want-to-sleep                      # 驗證 marketplace + plugin
+claude plugin validate ./i-want-to-sleep                       # validates marketplace + plugin
 claude --plugin-dir ./i-want-to-sleep/plugins/i-want-to-sleep
 ```
 
-## 每晚啟動前（plugin 管不到，要自己設）
+### Update / uninstall
 
-| 項目 | 做法 | 為什麼 |
+```bash
+claude plugin marketplace update i-want-to-sleep
+claude plugin update i-want-to-sleep@i-want-to-sleep
+
+claude plugin uninstall i-want-to-sleep@i-want-to-sleep
+claude plugin marketplace remove i-want-to-sleep
+```
+
+Requires Claude Code v2.1.139 or later.
+
+## Before each night
+
+The plugin cannot set these for you. Do them once per machine (or per session where noted).
+
+| Item | How | Why |
 |---|---|---|
-| 權限 | `claude --dangerously-skip-permissions` 或 auto mode | 半夜沒人按確認 |
-| Stop hook 上限 | `export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0` | 預設連續 8 次就強制結束回合；0 = 不限制（本 plugin 自己有時間與回合上限兜底） |
-| 停止時間 / 回合上限 | `export NIGHT_SHIFT_STOP_AT=06:30`、`NIGHT_SHIFT_MAX_TURNS=120`（選填） | 預設 06:30 / 120 回合 |
-| push 權限 | credential 只需能 push 到 `night-shift/*`（可用 GitLab protected branch 保護 main） | hook 只放行 push 到 night-shift 分支；main 的保護交給 server 端 |
-| 機器 | 不睡眠；訂閱額度開「等額度重置後繼續」 | 撞用量上限會暫停 |
+| Permissions | start with `claude --dangerously-skip-permissions` (or auto mode) | nobody is awake to approve tool calls |
+| Stop-hook cap | `export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0` | Claude Code ends a turn after 8 consecutive stop-hook continuations by default; `0` removes the cap. The plugin has its own time and turn limits |
+| Stop time / turn limit | `export NIGHT_SHIFT_STOP_AT=06:30` and `NIGHT_SHIFT_MAX_TURNS=120` (optional) | defaults are 06:30 local time / 120 turns |
+| Push rights | the credential only needs to push to `night-shift/*`; protect `main` server-side | the hook only allows pushes to the night-shift branch; `main` protection is the server's job |
+| Machine | keep it awake; on a subscription plan enable "continue when usage limit resets" | hitting the usage limit pauses the session |
 
-## 使用
+## Use
 
-在正在進行的 Claude Code 對話裡：
+In a Claude Code session that already has some work in progress:
 
 ```
 /i-want-to-sleep:sleep
-/i-want-to-sleep:sleep 以「用 SQLite 版本為準」
-/i-want-to-sleep:sleep 只收尾
+/i-want-to-sleep:sleep use the SQLite version as the baseline
+/i-want-to-sleep:sleep wrap-up only
 ```
 
-或直接說「我要睡覺了」。
+Or just say "I'm going to sleep" / "我要睡覺了".
 
-## 早上
+## What happens overnight
 
-1. 打開對話視窗看「報告老闆」收工報告；細節在 `.agent-pipeline/result.md`。
-2. 分支已 push，在 GitLab/GitHub 開 MR 看 diff；逐個加分項決定 merge 或 `git revert`。
-   方向不對 → 直接在同一個對話下指令修改。
-3. 合併後刪 `.agent-pipeline/`。
+| Step | What Claude does |
+|---|---|
+| 0 | Creates branch `night-shift/<date>`, sets the `.agent-pipeline/ACTIVE` flag |
+| 1 | Reads the whole conversation and writes `scope.md`: original requirement, done, unfinished, rejected |
+| 2 | Finishes every unfinished item, one commit each, with build + unit tests (3 retries, then `[WIP-FAILED]`) |
+| 3 | Researches competitors / top open-source projects for ideas that serve the original requirement; records sources |
+| 4 | Scores candidates `(Impact × Urgency) / (Effort × Blast)`; skips anything below 2 |
+| 5 | Implements the winner with tests, one isolated commit per idea (`bonus-01`, `bonus-02`, …), then goes back to 4 |
+| 6 | When time or turns run out: pushes the branch, writes `result.md`, posts a wrap-up report in the chat |
 
-## 限制
+A **Stop hook** pushes Claude back to work every time it tries to stop while `ACTIVE` exists.
+**PreToolUse hooks** block `git push` to anything but `night-shift/*`, `merge` / `rebase` /
+`reset --hard` / `--force`, `rm -rf`, package installs, and edits to CI config, migrations,
+settings files and dependency manifests. All hooks are inert when `ACTIVE` is absent, so
+daytime sessions are unaffected.
 
-- 只在 Claude Code（CLI / 桌面版 / Remote Control）可用；claude.ai 聊天視窗無法整晚執行。
-- 禁改清單用路徑 pattern 攔，保守版，可能誤殺；被擋的動作會記在 result.md。
-- 尚未實跑驗證。第一晚請在場看前幾回合，確認 Stop hook 有把它推回去。
+## In the morning
+
+1. Open the session: the last message is a wrap-up report (what was done, sources, test status, files changed, decisions needed).
+2. The branch is already pushed: open a merge request and review the diff. Each bonus item is an independent commit — merge the good ones, `git revert` the rest.
+3. Wrong direction? Give instructions in the same session.
+4. Delete `.agent-pipeline/` after merging.
+
+## Components
+
+| File | Role |
+|---|---|
+| `plugins/i-want-to-sleep/skills/night-shift-job-generator/SKILL.md` | the procedure: scope → wrap-up → research → score → implement → report |
+| `plugins/i-want-to-sleep/commands/sleep.md` | `/i-want-to-sleep:sleep` trigger |
+| `plugins/i-want-to-sleep/hooks/hooks.json` + `scripts/night-shift-stop.sh` | Stop hook: keep working; request wrap-up at the time / turn limit |
+| `plugins/i-want-to-sleep/scripts/guard-bash.sh`, `guard-write.sh` | PreToolUse guards |
+| `.claude-plugin/marketplace.json` | makes this repo installable as a marketplace |
+| `install.sh` | one-line installer |
+
+## Limitations
+
+- Claude Code only (CLI, desktop app, Remote Control). A claude.ai chat cannot run overnight.
+- Guards are pattern-based blocklists and err on the side of not blocking normal commands; anything blocked is logged in `result.md`. Branch isolation plus a protected `main` is the real safety net.
+- The 06:30 stop time uses the machine's local clock; check the time zone if Claude Code runs in a container.
+- Not yet battle-tested. Watch the first few turns on the first night.
+
+## License
+
+MIT
