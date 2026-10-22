@@ -18,15 +18,18 @@ description: 接手代理。當使用者說「我要睡覺了」「你接手」�
 ### Step 0 — 開分支、立旗標
 
 ```bash
-git stash list >/dev/null; git status --porcelain | grep -q . && git stash push -m "night-shift pre-stash"
+git status --porcelain | grep -q . && git stash push -m "night-shift pre-stash"
+BASE=$(git branch --show-current)                 # 夜班從「現在所在的分支」開出去
 git checkout -b night-shift/$(date +%Y-%m-%d)
 rm -rf .agent-pipeline && mkdir -p .agent-pipeline
+echo "$BASE" > .agent-pipeline/BASE               # 之後所有 diff / log 都以它為基底，不是 main
 touch .agent-pipeline/ACTIVE
 HOURS=<來自 /sleep 參數的數字，預設 8>
 echo $(( $(date +%s) + HOURS * 3600 )) > .agent-pipeline/DEADLINE
 ```
 
 - DEADLINE 是 Stop hook 判斷收工的唯一時間依據；一定要寫，寫錯整晚不會停。
+- BASE 是早上報告的比較基準。凡是本文件寫 `$BASE` 的地方，一律讀 `.agent-pipeline/BASE`，不要寫死 main。
 - 有 stash 的變更要寫進 result.md「需要你決定的事」。
 - 整晚只在這條分支上。禁止 merge / rebase / reset --hard / --force；push 只在收工時推到這條分支（PreToolUse hook 會擋其他目標，但不要去試）。
 
@@ -115,7 +118,7 @@ Score = (Impact × Urgency) / (Effort × Blast)
 
 Stop hook 會在時間到或回合用完時要求收尾；收到那則指示後，或 `/sleep 只收尾` 做完後：
 
-1. 印出 `git log --oneline main..HEAD`、`git diff main --name-only`、最後一次 build/test 結果。
+1. 印出 `git log --oneline $BASE..HEAD`、`git diff $BASE --name-only`、最後一次 build/test 結果（`$BASE` 讀自 `.agent-pipeline/BASE`）。
 2. 補完 result.md（格式如下）。
 3. commit `docs(night-shift): result`。
 4. `git push -u origin night-shift/<date>`（只允許這條分支；hook 會擋其他目標）。
@@ -129,8 +132,8 @@ Stop hook 會在時間到或回合用完時要求收尾；收到那則指示後�
 加分項：
   1. <名稱> — 參考 <來源>，<一句話做了什麼>，單元測試 ✅/❌
   2. …
-修改檔案：<數量> 個（清單見 git diff main --name-only）
-分支：night-shift/<date>（已 push，可直接開 MR）
+修改檔案：<數量> 個（清單見 git diff <BASE> --name-only）
+分支：night-shift/<date>，基於 <BASE>（已 push；MR 請對 <BASE> 開，不是 main）
 需要你決定：<條數>（見 result.md）
 結束原因：時間到 / 回合用完 / 無候選
 ```

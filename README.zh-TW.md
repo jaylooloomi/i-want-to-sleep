@@ -54,7 +54,7 @@ claude --dangerously-skip-permissions
 /sleep 8
    │
    ▼
-Step 0  開分支 night-shift/<date>、ACTIVE 旗標、DEADLINE = 現在 + 8h
+Step 0  記錄 BASE = 當前分支；從它開 night-shift/<date>；ACTIVE 旗標；DEADLINE = 現在 + 8h
 Step 1  讀整段對話 → scope.md（原始需求 / 已完成 / 未完成 / 已否決）
 Step 2  做完每個未完成項目 — 各自 commit，build + 單元測試，重試 3 次
 Step 3  調研競品與頂尖專案，找能服務原始需求的點子
@@ -82,6 +82,8 @@ Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 
 ## 使用
 
+第一次跑之前先看你在哪條分支。夜班分支是從**你當下的 HEAD** 開出去的，早上的報告以那條分支為比較基準，MR 也該對它開——不是 main。如果你 checkout 在一條不相干的長期分支上，先切換或收掉。
+
 ```
 /i-want-to-sleep:sleep               # 8 小時（預設）
 /i-want-to-sleep:sleep 2             # 2 小時，白天也能用
@@ -94,7 +96,7 @@ Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 ### 早上
 
 1. 看 session 裡的收工報告（做了什麼、參考來源、測試狀態、檔案、需要你決定的事）。細節在 `.agent-pipeline/result.md`。
-2. 從 `night-shift/<date>` 開 MR。每個加分項是獨立 commit。
+2. 從 `night-shift/<date>` 開 MR，**目標是你出發的那條分支**（記在 `.agent-pipeline/BASE`）。每個加分項是獨立 commit。
 3. 方向不對？在同一個 session 直接說。
 4. 合併後刪 `.agent-pipeline/`。
 
@@ -107,15 +109,15 @@ Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 
 > 幫我安裝 https://github.com/jaylooloomi/i-want-to-sleep
 
-**如果你是正在讀這段的 AI agent**，執行：
+**如果你是正在讀這段的 AI agent**，照這三行執行——除非使用者另有指示，用 `--scope local`：
 
 ```bash
 claude plugin marketplace add jaylooloomi/i-want-to-sleep
-claude plugin install i-want-to-sleep@jaylooloomi
+claude plugin install i-want-to-sleep@jaylooloomi --scope local
 claude plugin list
 ```
 
-先問使用者要裝在所有專案（預設 user scope）還是只在這個 repo（`--scope local`），然後請使用者看[設定](#設定)。
+然後就停。**不要**嘗試 `export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0`，也不要嘗試用 `--dangerously-skip-permissions` 重啟：你在 Bash 工具裡的 `export` 隨那個子 shell 一起結束，到不了使用者的終端機；權限模式是啟動參數，跑在 session 裡的你改不了。請使用者看[只有人能做的事](#只有人能做的事)，那兩件事由他自己做。
 </details>
 
 <details>
@@ -157,9 +159,9 @@ claude plugin marketplace remove jaylooloomi
 ```
 </details>
 
-## 設定
+## 只有人能做的事
 
-這些 plugin 管不到，要你自己設。
+這些 plugin 管不到，session 裡的 agent 也管不到：環境變數要在*你的* shell 裡，權限模式是啟動參數。自己做一次。
 
 | 項目 | 值 | 必要 | 原因 |
 |---|---|---|---|

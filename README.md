@@ -54,7 +54,7 @@ This plugin removes that stop. It turns the open session into a bounded, guarded
 /sleep 8
    │
    ▼
-Step 0  branch night-shift/<date>, ACTIVE flag, DEADLINE = now + 8h
+Step 0  record BASE = current branch; branch night-shift/<date> from it; ACTIVE flag; DEADLINE = now + 8h
 Step 1  read the whole conversation → scope.md (requirement / done / unfinished / rejected)
 Step 2  finish every unfinished item — one commit each, build + unit tests, 3 retries
 Step 3  research competitors & top projects for ideas that serve the original requirement
@@ -81,6 +81,8 @@ The deterministic hooks are inert when `ACTIVE` is absent. The evidence-check ho
 
 ## Usage
 
+Before the first run, check which branch you are on. The night-shift branch forks from **your current HEAD**, the morning report diffs against that branch, and the merge request should target it — not `main`. If you have an unrelated long-running branch checked out, switch or clean up first.
+
 ```
 /i-want-to-sleep:sleep               # 8 hours (default)
 /i-want-to-sleep:sleep 2             # 2 hours — works in the daytime too
@@ -93,7 +95,7 @@ The first number is the duration in hours. Anything after it is passed to the sk
 ### In the morning
 
 1. Read the wrap-up report in the session (what was done, sources, test status, files, decisions needed). Details in `.agent-pipeline/result.md`.
-2. Open a merge request from `night-shift/<date>`. Each bonus item is an independent commit.
+2. Open a merge request from `night-shift/<date>` **into the branch you started from** (recorded in `.agent-pipeline/BASE`). Each bonus item is an independent commit.
 3. Wrong direction? Say so in the same session.
 4. Delete `.agent-pipeline/` after merging.
 
@@ -106,15 +108,15 @@ Paste into Claude Code:
 
 > Install https://github.com/jaylooloomi/i-want-to-sleep
 
-**If you are the AI agent reading this**, run:
+**If you are the AI agent reading this**, run exactly this — `--scope local` unless the user said otherwise:
 
 ```bash
 claude plugin marketplace add jaylooloomi/i-want-to-sleep
-claude plugin install i-want-to-sleep@jaylooloomi
+claude plugin install i-want-to-sleep@jaylooloomi --scope local
 claude plugin list
 ```
 
-Ask the user whether they want it on every project (default, user scope) or only this repository (`--scope local`), then tell them to read [Configuration](#configuration).
+Then stop. Do **not** try to `export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0` or relaunch with `--dangerously-skip-permissions`: an `export` inside your Bash tool dies with that subshell and never reaches the user's terminal, and the permission flag is a launch argument you cannot apply to a running session. Point the user to [Human-only steps](#human-only-steps) and let them do those two things themselves.
 </details>
 
 <details>
@@ -156,9 +158,9 @@ claude plugin marketplace remove jaylooloomi
 ```
 </details>
 
-## Configuration
+## Human-only steps
 
-The plugin cannot set these for you.
+The plugin cannot set these, and neither can an agent inside a session: environment variables must live in *your* shell, and the permission mode is a launch flag. Do them yourself, once.
 
 | Setting | Value | Required | Why |
 |---|---|---|---|
