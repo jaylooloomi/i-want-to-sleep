@@ -1,6 +1,6 @@
 ---
 name: night-shift-job-generator
-description: 夜班接手代理。當使用者說「我要睡覺了」「睡前」「night shift」「你接手」「晚上幫我做完」「自己找事做到早上」或下 /sleep 指令時，一定要使用此技能。它會開分支、把當前對話壓成合約（scope.md）、先做完對話中尚未完成的承諾項目，再以原始需求為錨持續調研競品與頂尖做法、評分、實作加分項，一個接一個直到早上，並維護一頁審閱簡報（result.md）。每夜獨立，不讀前幾夜的結果。
+description: 接手代理。當使用者說「我要睡覺了」「你接手」「幫我做 N 小時」「自己找事做」「night shift」或下 /sleep [hours] 指令時，一定要使用此技能。它會開分支、把當前對話壓成合約（scope.md）、先做完對話中尚未完成的承諾項目，再以原始需求為錨持續調研競品與頂尖做法、評分、實作加分項，一個接一個直到早上，並維護一頁審閱簡報（result.md）。每夜獨立，不讀前幾夜的結果。
 ---
 
 # Night Shift：收尾 → 持續加分 → 到早上
@@ -9,7 +9,7 @@ description: 夜班接手代理。當使用者說「我要睡覺了」「睡前�
 
 - **一次性**：狀態只來自**當前對話**和**當前 repo**。本夜若發現 `.agent-pipeline/` 已有舊檔，直接清掉重來。
 - **收尾優先於加分，無條件**。承諾過的事沒有優先級可議。
-- **加分項不停**：做完一個就挑下一個，直到 Stop hook 宣布時間到或回合用完。
+- **加分項不停**：做完一個就挑下一個，直到 Stop hook 宣布時數用完或回合用完。白天也能用：`/sleep 2` 就是接手兩小時。
 - **為審閱而設計**：早上使用者只有 30 分鐘。每個加分項獨立 commit、可獨立 revert、result.md 一眼看懂。
 - **機制說明**：你不需要自己維持迴圈。只要 `.agent-pipeline/ACTIVE` 存在且 `DONE` 不存在，plugin 的 Stop hook 會在你每次想停下時把你推回來。你的工作是照下面的順序做，並在每回合留下證據。
 
@@ -22,8 +22,11 @@ git stash list >/dev/null; git status --porcelain | grep -q . && git stash push 
 git checkout -b night-shift/$(date +%Y-%m-%d)
 rm -rf .agent-pipeline && mkdir -p .agent-pipeline
 touch .agent-pipeline/ACTIVE
+HOURS=<來自 /sleep 參數的數字，預設 8>
+echo $(( $(date +%s) + HOURS * 3600 )) > .agent-pipeline/DEADLINE
 ```
 
+- DEADLINE 是 Stop hook 判斷收工的唯一時間依據；一定要寫，寫錯整晚不會停。
 - 有 stash 的變更要寫進 result.md「需要你決定的事」。
 - 整晚只在這條分支上。禁止 merge / rebase / reset --hard / --force；push 只在收工時推到這條分支（PreToolUse hook 會擋其他目標，但不要去試）。
 
@@ -171,9 +174,9 @@ PreToolUse hook 會實際阻擋 Git / 禁改清單 / 套件安裝；被擋就記
 
 ## /sleep 參數
 
+- `<數字>`（第一個 token）：執行時數，預設 8。例：`/sleep 2`、`/sleep 8 只收尾`。
 - `以 X 為準`：scope.md 第 1 節直接採用。
 - `只收尾`：跳過 Step 3–5。
-- `停止 HH:MM`：以環境變數 `NIGHT_SHIFT_STOP_AT` 為準；若無法設定，寫進 scope.md 並在接近該時間時主動收工。
 
 ## 不要做的事
 

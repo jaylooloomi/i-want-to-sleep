@@ -2,7 +2,7 @@
 
 [繁體中文](README.zh-TW.md)
 
-Say **"I'm going to sleep"** in a Claude Code session and Claude takes over until morning:
+Say **"I'm going to sleep"** (or `/i-want-to-sleep:sleep 8`) in a Claude Code session and Claude takes over for N hours:
 opens a branch → finishes whatever the conversation left unfinished → keeps researching
 competitors and best practices, picks the highest-value idea, implements and tests it,
 commits, and moves on to the next one → leaves you a one-page report and a pushed branch
@@ -80,7 +80,7 @@ The plugin cannot set these for you. Do them once per machine (or per session wh
 |---|---|---|
 | Permissions | start with `claude --dangerously-skip-permissions` (or auto mode) | nobody is awake to approve tool calls |
 | Stop-hook cap | `export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0` | Claude Code ends a turn after 8 consecutive stop-hook continuations by default; `0` removes the cap. The plugin has its own time and turn limits |
-| Stop time / turn limit | `export NIGHT_SHIFT_STOP_AT=06:30` and `NIGHT_SHIFT_MAX_TURNS=120` (optional) | defaults are 06:30 local time / 120 turns |
+| Default duration / turn limit | `export NIGHT_SHIFT_HOURS=8` and `NIGHT_SHIFT_MAX_TURNS=120` (optional) | used only when `/sleep` gets no number; defaults 8 h / 120 turns |
 | Push rights | the credential only needs to push to `night-shift/*`; protect `main` server-side | the hook only allows pushes to the night-shift branch; `main` protection is the server's job |
 | Machine | keep it awake; on a subscription plan enable "continue when usage limit resets" | hitting the usage limit pauses the session |
 
@@ -89,24 +89,25 @@ The plugin cannot set these for you. Do them once per machine (or per session wh
 In a Claude Code session that already has some work in progress:
 
 ```
-/i-want-to-sleep:sleep
-/i-want-to-sleep:sleep use the SQLite version as the baseline
-/i-want-to-sleep:sleep wrap-up only
+/i-want-to-sleep:sleep            # 8 hours (default)
+/i-want-to-sleep:sleep 2          # 2 hours — works in the daytime too
+/i-want-to-sleep:sleep 8 use the SQLite version as the baseline
+/i-want-to-sleep:sleep 1 wrap-up only
 ```
 
-Or just say "I'm going to sleep" / "我要睡覺了".
+The first number is the duration in hours. Or just say "I'm going to sleep" / "take over for 3 hours".
 
 ## What happens overnight
 
 | Step | What Claude does |
 |---|---|
-| 0 | Creates branch `night-shift/<date>`, sets the `.agent-pipeline/ACTIVE` flag |
+| 0 | Creates branch `night-shift/<date>`, sets the `.agent-pipeline/ACTIVE` flag and a `DEADLINE` (now + N hours) |
 | 1 | Reads the whole conversation and writes `scope.md`: original requirement, done, unfinished, rejected |
 | 2 | Finishes every unfinished item, one commit each, with build + unit tests (3 retries, then `[WIP-FAILED]`) |
 | 3 | Researches competitors / top open-source projects for ideas that serve the original requirement; records sources |
 | 4 | Scores candidates `(Impact × Urgency) / (Effort × Blast)`; skips anything below 2 |
 | 5 | Implements the winner with tests, one isolated commit per idea (`bonus-01`, `bonus-02`, …), then goes back to 4 |
-| 6 | When time or turns run out: pushes the branch, writes `result.md`, posts a wrap-up report in the chat |
+| 6 | When the deadline or turn limit is reached: pushes the branch, writes `result.md`, posts a wrap-up report in the chat |
 
 A **Stop hook** pushes Claude back to work every time it tries to stop while `ACTIVE` exists.
 **PreToolUse hooks** block `git push` to anything but `night-shift/*`, `merge` / `rebase` /
@@ -136,7 +137,6 @@ daytime sessions are unaffected.
 
 - Claude Code only (CLI, desktop app, Remote Control). A claude.ai chat cannot run overnight.
 - Guards are pattern-based blocklists and err on the side of not blocking normal commands; anything blocked is logged in `result.md`. Branch isolation plus a protected `main` is the real safety net.
-- The 06:30 stop time uses the machine's local clock; check the time zone if Claude Code runs in a container.
 - Not yet battle-tested. Watch the first few turns on the first night.
 
 ## License

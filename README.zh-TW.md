@@ -2,7 +2,7 @@
 
 [English](README.md)
 
-說「我要睡覺了」，Claude Code 接手：開分支 → 收尾對話中未完成的項目 → 持續調研並實作加分項 → 早上留一頁審閱簡報。
+說「我要睡覺了」（或 `/i-want-to-sleep:sleep 8`），Claude Code 接手 N 小時：開分支 → 收尾對話中未完成的項目 → 持續調研並實作加分項 → 早上留一頁審閱簡報。
 
 ## 零件（Components）
 
@@ -10,7 +10,7 @@
 |---|---|
 | `plugins/i-want-to-sleep/skills/night-shift-job-generator/SKILL.md` | 怎麼做：scope → 收尾 → 調研 → 評分 → 實作 → result |
 | `plugins/i-want-to-sleep/commands/sleep.md` | `/i-want-to-sleep:sleep` 一個指令觸發 |
-| `plugins/i-want-to-sleep/hooks/hooks.json` + `scripts/night-shift-stop.sh` | Stop hook：夜班中把 Claude 推回去繼續；時間到或回合用完就要求收工 |
+| `plugins/i-want-to-sleep/hooks/hooks.json` + `scripts/night-shift-stop.sh` | Stop hook：執行中把 Claude 推回去繼續；時數用完或回合用完就要求收工 |
 | `plugins/i-want-to-sleep/scripts/guard-bash.sh` / `guard-write.sh` |
 | `.claude-plugin/marketplace.json` | 讓這個 repo 可直接當 marketplace 安裝 |
 | `install.sh` | 一行安裝腳本 | PreToolUse 硬防線：push 只放行 night-shift 分支；擋危險 git / 套件安裝 / 禁改清單 |
@@ -86,7 +86,7 @@ claude plugin marketplace remove jaylooloomi
 |---|---|---|
 | 權限 | `claude --dangerously-skip-permissions` 或 auto mode | 半夜沒人按確認 |
 | Stop hook 上限 | `export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0` | 預設連續 8 次就強制結束回合；0 = 不限制（本 plugin 自己有時間與回合上限兜底） |
-| 停止時間 / 回合上限 | `export NIGHT_SHIFT_STOP_AT=06:30`、`NIGHT_SHIFT_MAX_TURNS=120`（選填） | 預設 06:30 / 120 回合 |
+| 預設時長 / 回合上限 | `export NIGHT_SHIFT_HOURS=8`、`NIGHT_SHIFT_MAX_TURNS=120`（選填） | 只在 `/sleep` 沒給數字時用；預設 8 小時 / 120 回合 |
 | push 權限 | credential 只需能 push 到 `night-shift/*`（可用 GitLab protected branch 保護 main） | hook 只放行 push 到 night-shift 分支；main 的保護交給 server 端 |
 | 機器 | 不睡眠；訂閱額度開「等額度重置後繼續」 | 撞用量上限會暫停 |
 
@@ -95,12 +95,13 @@ claude plugin marketplace remove jaylooloomi
 在正在進行的 Claude Code 對話裡：
 
 ```
-/i-want-to-sleep:sleep
-/i-want-to-sleep:sleep 以「用 SQLite 版本為準」
-/i-want-to-sleep:sleep 只收尾
+/i-want-to-sleep:sleep            # 8 小時（預設）
+/i-want-to-sleep:sleep 2          # 2 小時，白天也能用
+/i-want-to-sleep:sleep 8 以「用 SQLite 版本為準」
+/i-want-to-sleep:sleep 1 只收尾
 ```
 
-或直接說「我要睡覺了」。
+第一個數字 = 執行時數。或直接說「我要睡覺了」「幫我做 3 小時」。
 
 ## 早上
 

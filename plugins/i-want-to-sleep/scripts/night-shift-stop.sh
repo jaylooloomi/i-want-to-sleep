@@ -8,10 +8,16 @@ P="${CLAUDE_PROJECT_DIR:-$PWD}/.agent-pipeline"
 [ -f "$P/DONE" ]   && exit 0          # 已收工 → 放行
 
 # 可用環境變數覆寫
-STOP_AT="${NIGHT_SHIFT_STOP_AT:-06:30}"   # HH:MM，到此時間強制收工
-MAX_TURNS="${NIGHT_SHIFT_MAX_TURNS:-120}" # 回合上限（兜底）
+HOURS="${NIGHT_SHIFT_HOURS:-8}"            # 沒有 DEADLINE 檔時的預設時長（小時）
+MAX_TURNS="${NIGHT_SHIFT_MAX_TURNS:-120}"  # 回合上限（兜底）
 
-now=$(date +%H:%M)
+now=$(date +%s)
+# DEADLINE 由 skill Step 0 依 /sleep 參數寫入；缺少時以預設時長建立
+if [ ! -f "$P/DEADLINE" ]; then
+  echo $(( now + HOURS * 3600 )) > "$P/DEADLINE"
+fi
+deadline=$(cat "$P/DEADLINE" 2>/dev/null || echo 0)
+remain_min=$(( (deadline - now) / 60 ))
 n=$(( $(cat "$P/turns" 2>/dev/null || echo 0) + 1 ))
 echo "$n" > "$P/turns"
 
@@ -26,13 +32,13 @@ if [ -f "$P/STATE" ] && grep -q finishing "$P/STATE"; then
   exit 0
 fi
 
-# 時間到（限早上時段，避免晚上 22:00 > 06:30 誤判）或回合用完 → 收尾
-if { [[ "$now" > "$STOP_AT" ]] && [[ "$now" < "12:00" ]]; } || [ "$n" -ge "$MAX_TURNS" ]; then
-  finish "time=$now turns=$n"
+# 時間到或回合用完 → 收尾
+if [ "$now" -ge "$deadline" ] || [ "$n" -ge "$MAX_TURNS" ]; then
+  finish "remaining=${remain_min}min turns=$n"
 fi
 
 cat >&2 <<MSG
-夜班進行中（第 $n 回合；到 $STOP_AT 或 $MAX_TURNS 回合為止）。依 i-want-to-sleep:night-shift-job-generator skill 繼續：
+夜班進行中（第 $n 回合；剩餘約 ${remain_min} 分鐘，或到 $MAX_TURNS 回合為止）。依 i-want-to-sleep:night-shift-job-generator skill 繼續：
 - 先確認 scope.md 第 3 節是否全部處理完；沒有就繼續收尾。
 - 收尾完成後，從候選清單取下一個加分項（Score 達門檻才做；清單用完就重新調研）。
 - 每回合至少執行一個工具，並印出 git status --short 與 build/test 結果。
