@@ -2,6 +2,8 @@
 
 [English](README.md)
 
+<p align="center"><img src="docs/hero.png" alt="左：白天，想睡的章魚坐在筆電前。/sleep 8。右：夜班，同一隻章魚戴安全帽，八隻觸手拿著扳手、鍵盤、咖啡、測試通過徽章、git 分支、放大鏡、筆記本並打字，終端機顯示 tests passed。" width="900"></p>
+
 說「我要睡覺了」（或 `/i-want-to-sleep:sleep 8`），Claude Code 接手 N 小時：開分支 → 收尾對話中未完成的項目 → 持續調研並實作加分項 → 早上留一頁審閱簡報。
 
 ## 零件（Components）
