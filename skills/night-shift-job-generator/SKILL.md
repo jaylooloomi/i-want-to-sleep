@@ -25,7 +25,7 @@ touch .agent-pipeline/ACTIVE
 ```
 
 - 有 stash 的變更要寫進 result.md「需要你決定的事」。
-- 整晚只在這條分支上。禁止 push / merge / rebase / reset --hard / --force（PreToolUse hook 會擋，但不要去試）。
+- 整晚只在這條分支上。禁止 merge / rebase / reset --hard / --force；push 只在收工時推到這條分支（PreToolUse hook 會擋其他目標，但不要去試）。
 
 ### Step 1 — 萃取合約：`.agent-pipeline/scope.md`
 
@@ -70,6 +70,7 @@ commit：`chore(night-shift): scope`
 
 > 因為原始需求是 **X**，所以頂尖做法會順便做 **Y**；目前的成果 **沒有 / 只有部分**。
 
+- 每個候選必須記下參考來源（競品名稱、開源專案或文章連結），沒有來源的不算調研成果。
 - 與第 4 節（已否決）重疊 → 丟。
 - 是「讓專案看起來更專業」而非「讓原始需求做得更好」→ 丟（例：幫回測腳本加 Docker 和 CI）。
 - 抄的是功能行為與設計，不是程式碼、UI 素材、文案。GPL / AGPL 程式碼一律不搬。
@@ -109,7 +110,24 @@ Stop hook 會在時間到或回合用完時要求收尾；收到那則指示後�
 1. 印出 `git log --oneline main..HEAD`、`git diff main --name-only`、最後一次 build/test 結果。
 2. 補完 result.md（格式如下）。
 3. commit `docs(night-shift): result`。
-4. `touch .agent-pipeline/DONE && rm .agent-pipeline/ACTIVE`。停止，**不 push**。
+4. `git push -u origin night-shift/<date>`（只允許這條分支；hook 會擋其他目標）。
+5. `touch .agent-pipeline/DONE && rm .agent-pipeline/ACTIVE`。
+6. **在對話裡輸出收工報告**（這是使用者早上打開視窗第一眼看到的東西，格式固定）：
+
+```
+報告老闆，夜間任務已完成。
+
+收尾：N 項完成、M 項失敗（見 result.md）
+加分項：
+  1. <名稱> — 參考 <來源>，<一句話做了什麼>，單元測試 ✅/❌
+  2. …
+修改檔案：<數量> 個（清單見 git diff main --name-only）
+分支：night-shift/<date>（已 push，可直接開 MR）
+需要你決定：<條數>（見 result.md）
+結束原因：時間到 / 回合用完 / 無候選
+```
+
+然後停止。
 
 ```markdown
 # Night Shift Result（YYYY-MM-DD）
@@ -119,8 +137,8 @@ Stop hook 會在時間到或回合用完時要求收尾；收到那則指示後�
 |---|---|---|---|
 
 ## 加分項（每行一個，可獨立 revert）
-| # | 名稱 | Score | 做了什麼 | 驗證指令 | 狀態 | 否決的替代作法 |
-|---|---|---|---|---|---|---|
+| # | 名稱 | Score | 參考來源（競品 / 專案 / 文章） | 做了什麼 | 驗證指令 | 測試狀態 | 否決的替代作法 |
+|---|---|---|---|---|---|---|---|
 
 ## 判斷不值得做
 - （名稱 / 分數 / 一句原因）
@@ -142,7 +160,7 @@ result.md 從 Step 1 起就要存在並隨時更新，不要留到最後才寫�
 
 | 類別 | 規則 |
 |---|---|
-| Git | 只在 `night-shift/*` 分支；禁 push / merge / rebase / reset --hard / --force / 切回主分支 |
+| Git | 只在 `night-shift/*` 分支；push 只允許到該分支；禁 merge / rebase / reset --hard / --force / 切回主分支 |
 | 禁改清單 | CI 設定、資料庫 migration、`appsettings*` / `*.config` / `.env*`、`*.csproj` / `package.json` / lock 檔 / `requirements*` |
 | 依賴 | 禁止新增第三方套件 |
 | 規模 | 單一加分項 ≤ 5 檔、≤ 300 行淨增；超過就切片 |

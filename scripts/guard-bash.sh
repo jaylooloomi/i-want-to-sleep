@@ -14,7 +14,11 @@ deny() {
 }
 
 # 1. 危險 git / 檔案操作
-echo "$cmd" | grep -Eq 'git[[:space:]]+push'                                        && deny "git push"
+if echo "$cmd" | grep -Eq 'git[[:space:]]+push'; then
+  # 白名單：只允許 push 到 night-shift/* 分支，且不得帶 --force / -f / 刪除
+  echo "$cmd" | grep -Eq -- '(--force|[[:space:]]-f([[:space:]]|$)|--delete|[[:space:]]-d([[:space:]]|$)|:)' && deny "git push 帶 force/delete"
+  echo "$cmd" | grep -Eq 'git[[:space:]]+push([[:space:]]+(-u|--set-upstream))?[[:space:]]+[A-Za-z0-9_.-]+[[:space:]]+night-shift/[A-Za-z0-9_./-]+[[:space:]]*$' || deny "git push 到 night-shift/* 以外的分支"
+fi
 echo "$cmd" | grep -Eq 'git[[:space:]]+(merge|rebase)'                              && deny "git merge/rebase"
 echo "$cmd" | grep -Eq 'git[[:space:]]+reset[[:space:]]+--hard'                     && deny "git reset --hard"
 echo "$cmd" | grep -Eq 'git[[:space:]].*(--force|[[:space:]]-f([[:space:]]|$))'     && deny "git --force"

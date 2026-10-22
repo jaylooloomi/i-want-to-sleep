@@ -9,7 +9,7 @@
 | `skills/night-shift-job-generator/SKILL.md` | 怎麼做：scope → 收尾 → 調研 → 評分 → 實作 → result |
 | `commands/sleep.md` | `/i-want-to-sleep:sleep` 一個指令觸發 |
 | `hooks/hooks.json` + `scripts/night-shift-stop.sh` | Stop hook：夜班中把 Claude 推回去繼續；時間到或回合用完就要求收工 |
-| `scripts/guard-bash.sh` / `guard-write.sh` | PreToolUse 硬防線：擋 push / 危險 git / 套件安裝 / 禁改清單 |
+| `scripts/guard-bash.sh` / `guard-write.sh` | PreToolUse 硬防線：push 只放行 night-shift 分支；擋危險 git / 套件安裝 / 禁改清單 |
 
 所有 hook 只在 `.agent-pipeline/ACTIVE` 存在時生效，白天不干擾。
 
@@ -32,7 +32,7 @@ claude plugin validate /path/to/i-want-to-sleep
 | 權限 | `claude --dangerously-skip-permissions` 或 auto mode | 半夜沒人按確認 |
 | Stop hook 上限 | `export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0` | 預設連續 8 次就強制結束回合；0 = 不限制（本 plugin 自己有時間與回合上限兜底） |
 | 停止時間 / 回合上限 | `export NIGHT_SHIFT_STOP_AT=06:30`、`NIGHT_SHIFT_MAX_TURNS=120`（選填） | 預設 06:30 / 120 回合 |
-| push 能力 | `git remote set-url --push origin no_push` 或用無 push 權限的 credential | hook 失效時的最後兜底 |
+| push 權限 | credential 只需能 push 到 `night-shift/*`（可用 GitLab protected branch 保護 main） | hook 只放行 push 到 night-shift 分支；main 的保護交給 server 端 |
 | 機器 | 不睡眠；訂閱額度開「等額度重置後繼續」 | 撞用量上限會暫停 |
 
 ## 使用
@@ -49,8 +49,9 @@ claude plugin validate /path/to/i-want-to-sleep
 
 ## 早上
 
-1. 看 `.agent-pipeline/result.md`。
-2. `git log --oneline main..HEAD`，逐個加分項決定 merge 或 `git revert`。
+1. 打開對話視窗看「報告老闆」收工報告；細節在 `.agent-pipeline/result.md`。
+2. 分支已 push，在 GitLab/GitHub 開 MR 看 diff；逐個加分項決定 merge 或 `git revert`。
+   方向不對 → 直接在同一個對話下指令修改。
 3. 合併後刪 `.agent-pipeline/`。
 
 ## 限制
