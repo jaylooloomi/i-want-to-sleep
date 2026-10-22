@@ -21,7 +21,7 @@ tell the user to read [Before each night](#before-each-night).
 
 ```bash
 claude plugin marketplace add jaylooloomi/i-want-to-sleep
-claude plugin install i-want-to-sleep@i-want-to-sleep
+claude plugin install i-want-to-sleep@jaylooloomi
 claude plugin list
 ```
 
@@ -35,7 +35,7 @@ curl -fsSL https://raw.githubusercontent.com/jaylooloomi/i-want-to-sleep/main/in
 
 ```
 /plugin marketplace add jaylooloomi/i-want-to-sleep
-/plugin install i-want-to-sleep@i-want-to-sleep
+/plugin install i-want-to-sleep@jaylooloomi
 ```
 
 ### Step by step (CLI)
@@ -45,10 +45,10 @@ curl -fsSL https://raw.githubusercontent.com/jaylooloomi/i-want-to-sleep/main/in
 claude plugin marketplace add jaylooloomi/i-want-to-sleep
 
 # 2. Install the plugin from it
-claude plugin install i-want-to-sleep@i-want-to-sleep
+claude plugin install i-want-to-sleep@jaylooloomi
 
 # 3. Confirm
-claude plugin list            # should show i-want-to-sleep@i-want-to-sleep  Status: enabled
+claude plugin list            # should show i-want-to-sleep@jaylooloomi  Status: enabled
 claude plugin details i-want-to-sleep
 ```
 
@@ -63,11 +63,11 @@ claude --plugin-dir ./i-want-to-sleep/plugins/i-want-to-sleep
 ### Update / uninstall
 
 ```bash
-claude plugin marketplace update i-want-to-sleep
-claude plugin update i-want-to-sleep@i-want-to-sleep
+claude plugin marketplace update jaylooloomi
+claude plugin update i-want-to-sleep@jaylooloomi
 
-claude plugin uninstall i-want-to-sleep@i-want-to-sleep
-claude plugin marketplace remove i-want-to-sleep
+claude plugin uninstall i-want-to-sleep@jaylooloomi
+claude plugin marketplace remove jaylooloomi
 ```
 
 Requires Claude Code v2.1.139 or later.

@@ -29,7 +29,7 @@
 
 ```bash
 claude plugin marketplace add jaylooloomi/i-want-to-sleep
-claude plugin install i-want-to-sleep@i-want-to-sleep
+claude plugin install i-want-to-sleep@jaylooloomi
 claude plugin list
 ```
 
@@ -43,7 +43,7 @@ curl -fsSL https://raw.githubusercontent.com/jaylooloomi/i-want-to-sleep/main/in
 
 ```
 /plugin marketplace add jaylooloomi/i-want-to-sleep
-/plugin install i-want-to-sleep@i-want-to-sleep
+/plugin install i-want-to-sleep@jaylooloomi
 ```
 
 ### 逐步（CLI）
@@ -53,10 +53,10 @@ curl -fsSL https://raw.githubusercontent.com/jaylooloomi/i-want-to-sleep/main/in
 claude plugin marketplace add jaylooloomi/i-want-to-sleep
 
 # 2. 從它安裝 plugin
-claude plugin install i-want-to-sleep@i-want-to-sleep
+claude plugin install i-want-to-sleep@jaylooloomi
 
 # 3. 確認
-claude plugin list            # 應出現 i-want-to-sleep@i-want-to-sleep  Status: enabled
+claude plugin list            # 應出現 i-want-to-sleep@jaylooloomi  Status: enabled
 claude plugin details i-want-to-sleep
 ```
 
@@ -71,11 +71,11 @@ claude --plugin-dir ./i-want-to-sleep/plugins/i-want-to-sleep
 ### 更新 / 移除
 
 ```bash
-claude plugin marketplace update i-want-to-sleep
-claude plugin update i-want-to-sleep@i-want-to-sleep
+claude plugin marketplace update jaylooloomi
+claude plugin update i-want-to-sleep@jaylooloomi
 
-claude plugin uninstall i-want-to-sleep@i-want-to-sleep
-claude plugin marketplace remove i-want-to-sleep
+claude plugin uninstall i-want-to-sleep@jaylooloomi
+claude plugin marketplace remove jaylooloomi
 ```
 
 需要 Claude Code v2.1.139 以上。
