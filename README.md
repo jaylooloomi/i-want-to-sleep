@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.3.0-informational" alt="version">
+  <img src="https://img.shields.io/badge/version-0.4.0-informational" alt="version">
   <img src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.139-orange" alt="Claude Code ≥ 2.1.139">
   <img src="https://img.shields.io/badge/harness-Claude%20Code%20only-lightgrey" alt="Claude Code only">
   <a href="README.zh-TW.md"><img src="https://img.shields.io/badge/lang-繁體中文-green" alt="繁體中文"></a>
@@ -63,12 +63,19 @@ Step 5  implement the winner with tests — one isolated commit (bonus-01, bonus
 Step 6  push branch, write result.md, post the wrap-up report in chat
 ```
 
-Two mechanisms make this run unattended:
+Three mechanisms make this run unattended — and keep the model from grading its own homework:
 
 - **Stop hook** — every time Claude tries to end its turn while `.agent-pipeline/ACTIVE` exists, the hook sends it back with the next instruction. At the deadline it asks for wrap-up once, then lets go.
 - **PreToolUse hooks** — deterministic shell scripts (no model involved) that block `git push` to anything but `night-shift/*`, `merge` / `rebase` / `reset --hard` / `--force`, `rm -rf`, package installs, and edits to CI config, migrations, settings files and dependency manifests.
+- **A small-model review layer** — three places where a separate, cheap model (Haiku) checks the main model instead of letting it self-certify, the same idea behind Claude Code's `/goal` evaluator:
 
-All hooks are inert when `ACTIVE` is absent. Daytime sessions are unaffected.
+  | Where | Who | What it does |
+  |---|---|---|
+  | after `scope.md` is written | `scope-reviewer` subagent | re-reads the conversation and reports where the contract misreads the user; uncertain items become `[存疑]` and are skipped |
+  | before each bonus item | `scorer` subagent | scores the candidates; the main model must adopt the result and may only move *down* the list |
+  | every turn end | prompt-type Stop hook | checks that the turn used tools, printed `git status`, and has command output behind any "tests passed" claim; sends the turn back naming the one missing piece of evidence |
+
+The deterministic hooks are inert when `ACTIVE` is absent. The evidence-check hook short-circuits to "ok" when no night shift is active, but it does cost one small-model call per turn end in every session.
 
 ## Usage
 
@@ -178,10 +185,12 @@ This plugin does not use `/goal`; it is built on Claude Code's Stop and PreToolU
 |---|---|
 | `plugins/i-want-to-sleep/skills/night-shift-job-generator/SKILL.md` | the procedure: scope → wrap-up → research → score → implement → report |
 | `plugins/i-want-to-sleep/commands/sleep.md` | `/i-want-to-sleep:sleep [hours] [instructions]` |
-| `plugins/i-want-to-sleep/hooks/hooks.json` | registers the three hooks |
+| `plugins/i-want-to-sleep/hooks/hooks.json` | registers the four hooks (3 command, 1 prompt) |
 | `plugins/i-want-to-sleep/scripts/night-shift-stop.sh` | Stop hook: keep working; request wrap-up at the deadline |
 | `plugins/i-want-to-sleep/scripts/guard-bash.sh` | PreToolUse guard for shell commands |
 | `plugins/i-want-to-sleep/scripts/guard-write.sh` | PreToolUse guard for file writes |
+| `plugins/i-want-to-sleep/agents/scope-reviewer.md` | Haiku subagent: second reading of `scope.md` |
+| `plugins/i-want-to-sleep/agents/scorer.md` | Haiku subagent: independent candidate scoring |
 | `.claude-plugin/marketplace.json` | makes this repo installable as a marketplace |
 | `install.sh` | one-line installer |
 
@@ -194,7 +203,7 @@ No. The Bash guard allows `git push` only to `night-shift/*`, never with `--forc
 No. `dotnet add package`, `npm install <pkg>`, `pip install` and similar are blocked. Ideas that need a new dependency go to `result.md` under "decisions needed".
 
 **What stops it from drifting off-topic?**
-Every bonus candidate must be written as "because the requirement is X, top implementations also do Y" and must cite a source. Anything that cannot be phrased that way is dropped. Candidates scoring below 2 are skipped.
+Every bonus candidate must be written as "because the requirement is X, top implementations also do Y" and must cite a source. A separate Haiku subagent scores them — the main model cannot grade its own ideas — and anything below 2 is skipped.
 
 **What if the build is broken at the deadline?**
 It commits the state as `[WIP-FAILED]`, explains the blocker in `result.md`, and still writes the report. Nothing is force-pushed or reverted.

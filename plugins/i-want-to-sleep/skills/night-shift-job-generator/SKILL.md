@@ -56,6 +56,10 @@ echo $(( $(date +%s) + HOURS * 3600 )) > .agent-pipeline/DEADLINE
 - 需求被改過 → 舊需求衍生的未完成項目作廢。
 - 無法判斷是否仍要做 → 第 3 節末尾標 `[存疑]`，收尾時跳過。
 
+寫完後，**交給 `i-want-to-sleep:scope-reviewer` 子代理複核**（用 Agent/Task 工具呼叫，給它 scope.md 路徑與對話摘要）。它只回報不一致之處：
+- `VERDICT: OK` → 繼續。
+- `VERDICT: ISSUES` → 依它引用的使用者原話修正 scope.md；它標 `UNCERTAIN` 的項目一律改成 `[存疑]`。不與它爭論：它看的是使用者說了什麼，不是你的理解。
+
 commit：`chore(night-shift): scope`
 
 ### Step 2 — 收尾：逐項做完第 3 節
@@ -79,9 +83,9 @@ commit：`chore(night-shift): scope`
 - 抄的是功能行為與設計，不是程式碼、UI 素材、文案。GPL / AGPL 程式碼一律不搬。
 - 需要新增第三方套件的候選 → 不做，寫進 result.md「需要你決定的事」。
 
-### Step 4 — 評分、挑一個
+### Step 4 — 評分、挑一個（由 scorer 子代理打分）
 
-每個候選打 1–10 分並附一句理由：
+**你不給自己的候選打分。** 把 scope.md 與 candidates.md 交給 `i-want-to-sleep:scorer` 子代理，它回傳一張分數表與 `TOP`。評分定義（供你理解，不供你改分）：
 
 | 欄位 | 定義 |
 |---|---|
@@ -94,9 +98,10 @@ commit：`chore(night-shift): scope`
 Score = (Impact × Urgency) / (Effort × Blast)
 ```
 
-- 取最高分且 **Score ≥ 2** 的一個。
-- 最高分 < 2 → 不做。在 result.md「判斷不值得做」寫一行（名稱＋分數＋一句原因），回到 Step 3 重新調研。連續兩輪都沒有 ≥ 2 的候選 → 回報並要求收工（touch DONE）。
+- 採用 scorer 的 `TOP`。你唯一能做的覆寫是**往下**：若 TOP 違反圍欄（禁改清單、規模），跳到下一名並在 result.md 註明原因。不得把分數改高、不得跳過 scorer。
+- `TOP: none`（全部 < 2）→ 不做。在 result.md「判斷不值得做」把整張表貼上，回到 Step 3 重新調研。連續兩輪 `TOP: none` → 回報並要求收工（touch DONE）。
 - 可審閱門檻：預估 ≤ 5 檔、≤ 300 行淨增。超過 → 切片，本輪只做第 1 片（獨立可編譯、獨立可測、合併後不破壞現有功能），其餘各片寫回 candidates.md 當後續候選。
+- 把 scorer 的分數表原樣存進 `.agent-pipeline/scores-NN.md`，result.md 的 Score 欄引用它。
 
 ### Step 5 — 實作加分項
 
@@ -159,6 +164,8 @@ result.md 從 Step 1 起就要存在並隨時更新，不要留到最後才寫�
 
 每回合結束前印出 `git status --short`，以及該回合若有 build/test 則印出結果摘要。這是給早上的使用者看的，也避免「連續幾回合沒用工具」被系統判定無進度而停機。
 
+另有一個小模型的 Stop hook 每回合檢查：這回合有沒有用工具、有沒有印 git status、聲稱測試通過時 transcript 裡有沒有對應輸出、開新加分項前有沒有先 commit 前一個。它只指出缺哪一樣證據，不判斷工作做完沒。被它擋下就補上那樣東西，不要辯解。
+
 ## 硬性圍欄
 
 | 類別 | 規則 |
@@ -182,6 +189,8 @@ PreToolUse hook 會實際阻擋 Git / 禁改清單 / 套件安裝；被擋就記
 
 - 不讀前幾夜的任何檔案。
 - 不做三方案投票。
+- 不自己給候選打分、不改 scorer 的分數。
+- 不略過 scope-reviewer。
 - 不把收尾和加分混在同一 commit。
 - 不為了「看起來更專業」加東西。
 - 不做接不回原始需求的加分項。

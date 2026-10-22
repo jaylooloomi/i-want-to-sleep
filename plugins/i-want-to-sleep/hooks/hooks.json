@@ -9,6 +9,15 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "timeout": 30,
+            "prompt": "You are the evidence checker for the i-want-to-sleep night shift. Hook input: $ARGUMENTS\n\nReturn {\"ok\": true} immediately, without further analysis, if ANY of these hold:\n- hook_event_name is SubagentStop\n- the transcript shows no night shift is active in this session (no `touch .agent-pipeline/ACTIVE`, or `.agent-pipeline/DONE` was created, or a wrap-up report starting with 'Night shift complete' / '報告老闆' has been posted)\n- stop_hook_active is true and the previous block reason came from this evidence check (do not block twice in a row)\n\nOtherwise judge ONLY the last assistant turn. Return {\"ok\": false, \"reason\": \"...\"} when the turn:\n- used no tools at all (only talked), or\n- ended without printing `git status --short` (or an equivalent evidence of repo state), or\n- claims a build or tests passed but the transcript shows no command output supporting it, or\n- opened a new bonus item without first committing the previous one.\nThe reason must name the single missing piece of evidence in one sentence. Never judge whether the work is finished; the deadline decides that. Never ask Claude to stop."
+          }
+        ]
       }
     ],
     "PreToolUse": [

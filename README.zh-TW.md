@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.3.0-informational" alt="version">
+  <img src="https://img.shields.io/badge/version-0.4.0-informational" alt="version">
   <img src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.139-orange" alt="Claude Code ≥ 2.1.139">
   <img src="https://img.shields.io/badge/harness-%E5%83%85%20Claude%20Code-lightgrey" alt="僅 Claude Code">
   <a href="README.md"><img src="https://img.shields.io/badge/lang-English-green" alt="English"></a>
@@ -63,12 +63,20 @@ Step 5  實作勝出者並寫測試 — 獨立 commit（bonus-01、bonus-02 …�
 Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 ```
 
-讓它無人看管也能跑的兩個機制：
+讓它無人看管也能跑、而且不讓模型自己批改自己作業的三個機制：
 
 - **Stop hook** — 只要 `.agent-pipeline/ACTIVE` 存在，Claude 每次想結束回合都會被推回去並拿到下一步指示。時限到了要求收工一次，之後放行。
 - **PreToolUse hooks** — 確定性的 shell script（不經模型），擋住 push 到 `night-shift/*` 以外的分支、`merge` / `rebase` / `reset --hard` / `--force`、`rm -rf`、安裝套件、修改 CI 設定／migration／設定檔／依賴清單。
 
-`ACTIVE` 不存在時所有 hook 都不動作，白天 session 完全不受影響。
+- **小模型審查層** — 三個位置由另一個便宜的模型（Haiku）檢查主模型，而不是讓它自我認證；這跟 Claude Code `/goal` 用小模型當評估者是同一個想法：
+
+  | 位置 | 誰 | 做什麼 |
+  |---|---|---|
+  | scope.md 寫完後 | `scope-reviewer` 子代理 | 重讀對話，指出合約哪裡誤讀使用者；它標不確定的項目改成 `[存疑]` 跳過 |
+  | 每個加分項之前 | `scorer` 子代理 | 給候選打分；主模型必須採用結果，只能往下不能往上 |
+  | 每回合結束 | prompt 型 Stop hook | 檢查這回合有沒有用工具、有沒有印 `git status`、聲稱測試通過時有沒有指令輸出；缺哪一樣就指名退回 |
+
+確定性 hook 在 `ACTIVE` 不存在時不動作。證據檢查 hook 在沒有夜班時會直接回 ok，但每個 session 每回合結束仍會多一次小模型呼叫。
 
 ## 使用
 
@@ -178,10 +186,12 @@ claude plugin marketplace remove jaylooloomi
 |---|---|
 | `plugins/i-want-to-sleep/skills/night-shift-job-generator/SKILL.md` | 流程：scope → 收尾 → 調研 → 評分 → 實作 → 報告 |
 | `plugins/i-want-to-sleep/commands/sleep.md` | `/i-want-to-sleep:sleep [hours] [指示]` |
-| `plugins/i-want-to-sleep/hooks/hooks.json` | 註冊三個 hook |
+| `plugins/i-want-to-sleep/hooks/hooks.json` | 註冊四個 hook（3 個 command、1 個 prompt） |
 | `plugins/i-want-to-sleep/scripts/night-shift-stop.sh` | Stop hook：推回去繼續；時限到要求收工 |
 | `plugins/i-want-to-sleep/scripts/guard-bash.sh` | PreToolUse：shell 指令防線 |
 | `plugins/i-want-to-sleep/scripts/guard-write.sh` | PreToolUse：檔案寫入防線 |
+| `plugins/i-want-to-sleep/agents/scope-reviewer.md` | Haiku 子代理：scope.md 第二雙眼睛 |
+| `plugins/i-want-to-sleep/agents/scorer.md` | Haiku 子代理：獨立候選評分 |
 | `.claude-plugin/marketplace.json` | 讓這個 repo 可直接當 marketplace 安裝 |
 | `install.sh` | 一行安裝腳本 |
 
@@ -194,7 +204,7 @@ claude plugin marketplace remove jaylooloomi
 不會。`dotnet add package`、`npm install <pkg>`、`pip install` 之類都被擋。需要新套件的點子會寫進 `result.md`「需要你決定的事」。
 
 **什麼擋住它離題？**
-每個加分候選都必須寫成「因為需求是 X，所以頂尖做法會順便做 Y」並附來源，寫不出來就丟。分數低於 2 跳過。
+每個加分候選都必須寫成「因為需求是 X，所以頂尖做法會順便做 Y」並附來源。由另一個 Haiku 子代理打分——主模型不能給自己的點子評分——低於 2 跳過。
 
 **時限到了但 build 是壞的怎麼辦？**
 以 `[WIP-FAILED]` commit 現況，在 `result.md` 說明卡點，報告照寫。不會 force push 也不會 revert。
