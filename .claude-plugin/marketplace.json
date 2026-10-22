@@ -1,0 +1,15 @@
+{
+  "name": "i-want-to-sleep",
+  "description": "說「我要睡覺了」，Claude Code 接手跑到早上。",
+  "owner": { "name": "Arthur Wang" },
+  "plugins": [
+    {
+      "name": "i-want-to-sleep",
+      "source": "./plugins/i-want-to-sleep",
+      "description": "夜班接手：開分支、收尾未完成項目、持續調研並實作加分項，早上留報告與可開 MR 的分支。",
+      "version": "0.2.0",
+      "category": "productivity",
+      "keywords": ["night-shift", "autonomous", "overnight"]
+    }
+  ]
+}

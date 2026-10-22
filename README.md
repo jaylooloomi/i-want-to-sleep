@@ -15,15 +15,29 @@
 
 ## 安裝
 
-```bash
-# 試用（不安裝）
-claude --plugin-dir /path/to/i-want-to-sleep
+### 給 AI agent（Claude Code）
+如果使用者對你說「幫我安裝 https://github.com/jaylooloomi/i-want-to-sleep」，請直接在 shell 執行：
 
-# 驗證 manifest
-claude plugin validate /path/to/i-want-to-sleep
+```bash
+claude plugin marketplace add jaylooloomi/i-want-to-sleep
+claude plugin install i-want-to-sleep@i-want-to-sleep
+claude plugin list
 ```
 
-正式安裝可加進你自己的 marketplace，或持續用 `--plugin-dir`。
+然後告訴使用者：安裝完成，啟用前需設定 `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0` 並以 `--dangerously-skip-permissions` 啟動（見下節），之後在對話裡說「我要睡覺了」或下 `/i-want-to-sleep:sleep`。
+
+### 給人
+```bash
+curl -fsSL https://raw.githubusercontent.com/jaylooloomi/i-want-to-sleep/main/install.sh | bash
+```
+或在 Claude Code 對話裡：`/plugin marketplace add jaylooloomi/i-want-to-sleep` → `/plugin install i-want-to-sleep@i-want-to-sleep`。
+
+### 開發 / 試用（不安裝）
+```bash
+git clone https://github.com/jaylooloomi/i-want-to-sleep.git
+claude plugin validate ./i-want-to-sleep                      # 驗證 marketplace + plugin
+claude --plugin-dir ./i-want-to-sleep/plugins/i-want-to-sleep
+```
 
 ## 每晚啟動前（plugin 管不到，要自己設）
 
