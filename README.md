@@ -32,6 +32,8 @@ Then, in a session that already has work in progress:
 
 Come back in 8 hours. The last message in the session is a wrap-up report; the branch `night-shift/<date>` is pushed and ready for a merge request.
 
+> **Scope.** `claude plugin install` defaults to **user scope**: the plugin is active in every project on this machine, and the evidence-check Stop hook costs one small-model call per turn end in every session. To limit it to one repository, add `--scope local` (just you) or `--scope project` (everyone on the repo). Same flag applies to every install command below.
+
 ## Why
 
 You stop working at midnight with a half-finished feature. The model could keep going — it has the context, it can run the tests — but every turn ends with "anything else?" and nobody is there to say yes.
@@ -112,7 +114,7 @@ claude plugin install i-want-to-sleep@jaylooloomi
 claude plugin list
 ```
 
-Then tell the user to read [Configuration](#configuration).
+Ask the user whether they want it on every project (default, user scope) or only this repository (`--scope local`), then tell them to read [Configuration](#configuration).
 </details>
 
 <details>

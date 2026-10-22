@@ -32,6 +32,8 @@ claude --dangerously-skip-permissions
 
 8 小時後回來。session 最後一則訊息是收工報告；分支 `night-shift/<date>` 已 push，可直接開 MR。
 
+> **安裝範圍。** `claude plugin install` 預設是 **user scope**：這台機器上每個專案都啟用，而且證據檢查 Stop hook 在每個 session 每回合都會多一次小模型呼叫。只想裝在單一 repo，加 `--scope local`（只有你）或 `--scope project`（repo 所有協作者）。下面每種安裝方式都可加同一個參數。
+
 ## 為什麼
 
 半夜十二點你停下來，功能做到一半。模型其實可以繼續——context 它有、測試它會跑——但每一回合結尾都是「還有什麼需要嗎？」，沒人在那裡說「有」。
@@ -113,7 +115,7 @@ claude plugin install i-want-to-sleep@jaylooloomi
 claude plugin list
 ```
 
-然後請使用者看[設定](#設定)。
+先問使用者要裝在所有專案（預設 user scope）還是只在這個 repo（`--scope local`），然後請使用者看[設定](#設定)。
 </details>
 
 <details>
