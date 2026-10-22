@@ -2,7 +2,7 @@
 
 [繁體中文](README.zh-TW.md)
 
-<p align="center"><img src="docs/hero.png" alt="Before: a sleepy octopus at a laptop. /sleep 8. After: the same octopus in a hard hat, eight tentacles holding a wrench, keyboard, coffee, a green tests-passed badge, a git branch, a magnifier, a notebook, and typing — the terminal reads tests passed." width="900"></p>
+<p align="center"><img src="docs/hero-en.png" alt="Before: a sleepy octopus at a laptop. /sleep 8. After: the same octopus in a hard hat, eight tentacles holding a wrench, keyboard, coffee, a green tests-passed badge, a git branch, a magnifier, a notebook, and typing — the terminal reads tests passed." width="900"></p>
 
 Say **"I'm going to sleep"** (or `/i-want-to-sleep:sleep 8`) in a Claude Code session and Claude takes over for N hours:
 opens a branch → finishes whatever the conversation left unfinished → keeps researching
