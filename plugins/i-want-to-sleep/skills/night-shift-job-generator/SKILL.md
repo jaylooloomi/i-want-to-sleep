@@ -76,6 +76,8 @@ commit：`chore(night-shift): scope`
 
 ### Step 3 — 調研加分候選
 
+先執行 `git log --since=30.days --oneline > .agent-pipeline/recent-commits.md`（scorer 用它剔除已做過的東西）。
+
 以 scope.md 第 1 節為唯一錨點，調研做同類東西的競品 / 頂尖開源專案 / 業界標準做法，產出 3–8 個候選，寫進 `.agent-pipeline/candidates.md`。每個候選**必須**符合這個句型，寫不出來就丟：
 
 > 因為原始需求是 **X**，所以頂尖做法會順便做 **Y**；目前的成果 **沒有 / 只有部分**。
@@ -88,7 +90,7 @@ commit：`chore(night-shift): scope`
 
 ### Step 4 — 評分、挑一個（由 scorer 子代理打分）
 
-**你不給自己的候選打分。** 把 scope.md 與 candidates.md 交給 `i-want-to-sleep:scorer` 子代理，它回傳一張分數表與 `TOP`。評分定義（供你理解，不供你改分）：
+**你不給自己的候選打分。** 把 scope.md、candidates.md、recent-commits.md 交給 `i-want-to-sleep:scorer` 子代理，它回傳一張分數表與 `TOP`。評分定義（供你理解，不供你改分）：
 
 | 欄位 | 定義 |
 |---|---|
@@ -123,7 +125,7 @@ Stop hook 會在時間到或回合用完時要求收尾；收到那則指示後�
 3. commit `docs(night-shift): result`。
 4. `git push -u origin night-shift/<date>`（只允許這條分支；hook 會擋其他目標）。
 5. `touch .agent-pipeline/DONE && rm .agent-pipeline/ACTIVE`。
-6. **在對話裡輸出收工報告**（這是使用者早上打開視窗第一眼看到的東西，格式固定）：
+6. **呼叫 `i-want-to-sleep:reporter` 子代理**，把它回傳的報告**原樣**貼在對話裡（這是使用者早上第一眼看到的東西；交給子代理是為了 context 被壓縮後你仍不會漏格式）。它的格式：
 
 ```
 報告老闆，夜間任務已完成。
@@ -194,6 +196,7 @@ PreToolUse hook 會實際阻擋 Git / 禁改清單 / 套件安裝；被擋就記
 - 不做三方案投票。
 - 不自己給候選打分、不改 scorer 的分數。
 - 不略過 scope-reviewer。
+- 收工報告由 reporter 產生，不自己寫。
 - 不把收尾和加分混在同一 commit。
 - 不為了「看起來更專業」加東西。
 - 不做接不回原始需求的加分項。

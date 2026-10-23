@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.4.0-informational" alt="version">
+  <img src="https://img.shields.io/badge/version-0.5.0-informational" alt="version">
   <img src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.139-orange" alt="Claude Code ≥ 2.1.139">
   <img src="https://img.shields.io/badge/harness-Claude%20Code%20only-lightgrey" alt="Claude Code only">
   <a href="README.zh-TW.md"><img src="https://img.shields.io/badge/lang-繁體中文-green" alt="繁體中文"></a>
@@ -184,6 +184,16 @@ Three mechanisms make this run unattended — and keep the model from grading it
 
 The deterministic hooks are inert when `ACTIVE` is absent. The evidence-check hook short-circuits to "ok" when no night shift is active, but it does cost one small-model call per turn end in every session.
 
+## Works well with
+
+| Command | How it pairs |
+|---|---|
+| `/compact` | Run it right before `/sleep`: Step 1 reads a cleaner conversation and the session has more context headroom |
+| `claude --resume` | In the morning, resume the same session so "wrong direction, change it" picks up where it left off |
+| `/cost` | Compare last night's spend with the stats in `result.md`; tune `NIGHT_SHIFT_MAX_TURNS` |
+| `/loop` | The daytime counterpart: `/loop 30m run the tests and report` watches without branching or adding features |
+| `/goal` | Daytime "reach this verifiable end state" → `/goal`. Night "work for N hours" → `/sleep`. They don't conflict |
+
 ## Compatibility
 
 | Harness | Status |
@@ -205,7 +215,8 @@ This plugin does not use `/goal`; it is built on Claude Code's Stop and PreToolU
 | `plugins/i-want-to-sleep/scripts/guard-bash.sh` | PreToolUse guard for shell commands |
 | `plugins/i-want-to-sleep/scripts/guard-write.sh` | PreToolUse guard for file writes |
 | `plugins/i-want-to-sleep/agents/scope-reviewer.md` | Haiku subagent: second reading of `scope.md` |
-| `plugins/i-want-to-sleep/agents/scorer.md` | Haiku subagent: independent candidate scoring |
+| `plugins/i-want-to-sleep/agents/scorer.md` | Haiku subagent: independent candidate scoring, dedup against last 30 days of commits |
+| `plugins/i-want-to-sleep/agents/reporter.md` | Haiku subagent: writes the morning report from `result.md` |
 | `.claude-plugin/marketplace.json` | makes this repo installable as a marketplace |
 | `install.sh` | one-line installer |
 

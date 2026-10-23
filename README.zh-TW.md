@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.4.0-informational" alt="version">
+  <img src="https://img.shields.io/badge/version-0.5.0-informational" alt="version">
   <img src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.139-orange" alt="Claude Code ≥ 2.1.139">
   <img src="https://img.shields.io/badge/harness-%E5%83%85%20Claude%20Code-lightgrey" alt="僅 Claude Code">
   <a href="README.md"><img src="https://img.shields.io/badge/lang-English-green" alt="English"></a>
@@ -185,6 +185,16 @@ Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 
 確定性 hook 在 `ACTIVE` 不存在時不動作。證據檢查 hook 在沒有夜班時會直接回 ok，但每個 session 每回合結束仍會多一次小模型呼叫。
 
+## 搭配使用
+
+| 指令 | 怎麼搭 |
+|---|---|
+| `/compact` | 睡前先壓縮再 `/sleep`：Step 1 讀到的對話乾淨，session 的 context 空間也大 |
+| `claude --resume` | 早上接回同一個 session，「方向不對直接改」才接得上 |
+| `/cost` | 看昨晚燒了多少，對照 `result.md` 的統計，調 `NIGHT_SHIFT_MAX_TURNS` |
+| `/loop` | 白天的對照組：`/loop 30m 跑測試並回報` 只監看，不開分支、不加功能 |
+| `/goal` | 白天「做到某個可驗證終態」用 `/goal`；夜裡「跑滿 N 小時」用 `/sleep`。兩者不衝突 |
+
 ## 相容性
 
 | 執行環境 | 狀態 |
@@ -206,7 +216,8 @@ Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 | `plugins/i-want-to-sleep/scripts/guard-bash.sh` | PreToolUse：shell 指令防線 |
 | `plugins/i-want-to-sleep/scripts/guard-write.sh` | PreToolUse：檔案寫入防線 |
 | `plugins/i-want-to-sleep/agents/scope-reviewer.md` | Haiku 子代理：scope.md 第二雙眼睛 |
-| `plugins/i-want-to-sleep/agents/scorer.md` | Haiku 子代理：獨立候選評分 |
+| `plugins/i-want-to-sleep/agents/scorer.md` | Haiku 子代理：獨立候選評分，並對照最近 30 天 commit 去重 |
+| `plugins/i-want-to-sleep/agents/reporter.md` | Haiku 子代理：從 `result.md` 產生早上的報告 |
 | `.claude-plugin/marketplace.json` | 讓這個 repo 可直接當 marketplace 安裝 |
 | `install.sh` | 一行安裝腳本 |
 
