@@ -14,21 +14,21 @@
 
 <p align="center"><img src="docs/hero-en-v2.png" alt="Before: a sleepy octopus at a laptop. /sleep 8. After: the same octopus in a hard hat, eight tentacles holding a wrench, keyboard, coffee, a green tests-passed badge, a git branch, a magnifier, a notebook, and typing — the terminal reads tests passed." width="900"></p>
 
-## Last night's receipts
+## Field-tested
 
-Two real projects. Two nights. Nothing staged.
+Two real projects, one night each. Numbers unedited.
 
-| | 🎮 A Godot party game | 📈 A Taiwan stock-market heatmap |
+| | 🎮 Godot party game | 📈 Taiwan stock heatmap |
 |---|---|---|
-| Features shipped | **7** | **25** |
-| Bugs fixed | **7** — 3 were the test harness lying about passing | 5 rounds of independent code review, all findings fixed |
-| Tests | 652 → **744**, plus a new fuzz gate | pytest **128** ✅ · node **27** ✅ |
-| Speed-ups | — | date switch **7–23 s → 0.65 s** |
-| Knew when to stop | done **2.5 h early** — nothing left above the bar | done **5.5 h early** — two rounds of "nothing worth doing" |
-| Knew what *not* to do | measured a 65 % draw rate and **left it for the human** — it changes who wins | flagged a third-party data source for **your** sign-off |
-| Next morning | reviewed, merged | **all 25 reviewed and merged** |
+| **Shipped** | 7 features | 25 features |
+| **Fixed** | 7 defects, incl. 3 false passes in the test harness | 5 independent review rounds, all findings fixed |
+| **Tests** | 652 → 744, new fuzz gate | pytest 128 ✅ node 27 ✅ |
+| **Perf** | — | date switch 7–23 s → 0.65 s |
+| **Converged** | 2.5 h early, no candidate above the bar | 5.5 h early, two rounds with no qualifying candidate |
+| **Restraint** | 65 % 4-player draw rate — judged a design call, left untouched | third-party data source flagged for sign-off |
+| **Outcome** | reviewed, merged | all 25 reviewed, merged |
 
-It even filed bug reports against **its own guard rails** — five false positives — and never once tried to bypass them. (Fixed in 0.5.1.)
+It also reported five false positives in **its own guard rails** — and never attempted a bypass. (Fixed in 0.5.1.)
 
 ## Install
 
