@@ -17,119 +17,102 @@
 
 ## Install
 
-<details open>
-<summary><b>Copy-paste prompt for Claude Code (global install)</b></summary>
+Three steps. Follow them in order.
 
-Paste this into any Claude Code session. It installs at user scope — every project on this machine — and ends with the two steps only you can do.
+### Step 1: copy this block and paste it into Claude Code
 
 ```
-Install the Claude Code plugin https://github.com/jaylooloomi/i-want-to-sleep globally (user scope). Run exactly:
+Install the Claude Code plugin:
+https://github.com/jaylooloomi/i-want-to-sleep
 
+Run these three commands in order:
 claude plugin marketplace add jaylooloomi/i-want-to-sleep
 claude plugin install i-want-to-sleep@jaylooloomi --scope user
 claude plugin list
 
-Confirm the list shows i-want-to-sleep@jaylooloomi with Status: enabled and tell me the version. Do not read the whole repo first unless you need to; the hooks are deny-only and arm only while .agent-pipeline/ACTIVE exists.
+Confirm i-want-to-sleep@jaylooloomi shows Status: enabled,
+report the version, then stop.
 
-Then stop. Do NOT try to set environment variables or relaunch with --dangerously-skip-permissions — you cannot from inside a session. Instead print these two steps for me to run in my own shell:
-  1. echo 'export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0' >> ~/.zshrc  (or ~/.bashrc), then open a new terminal
-  2. start Claude Code with: claude --dangerously-skip-permissions
-and remind me that the usage is /i-want-to-sleep:sleep 8 from a session that already has work in progress.
+Do not set environment variables or relaunch the session;
+I will do those two steps myself.
 ```
 
-Want it in one repository only? Replace `--scope user` with `--scope local`.
-</details>
-
-**Or the shell commands yourself** (user scope by default; add `--scope local` for one repo):
+### Step 2: run in your own terminal
 
 ```bash
-claude plugin marketplace add jaylooloomi/i-want-to-sleep
-claude plugin install i-want-to-sleep@jaylooloomi
-export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0
+echo 'export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0' >> ~/.zshrc
+source ~/.zshrc
 claude --dangerously-skip-permissions
 ```
 
-Then, in a session that already has work in progress:
+(bash users: `~/.bashrc` instead of `~/.zshrc`. Windows: `setx CLAUDE_CODE_STOP_HOOK_BLOCK_CAP 0`, then reopen the terminal.)
+
+### Step 3: in a session that already has work in progress, type
 
 ```
 /i-want-to-sleep:sleep 8
 ```
 
-Come back in 8 hours. The last message in the session is a wrap-up report; the branch `night-shift/<date>` is pushed and ready for a merge request.
-
-> **Scope.** `claude plugin install` defaults to **user scope**: the plugin is active in every project on this machine, and the evidence-check Stop hook costs one small-model call per turn end in every session. To limit it to one repository, add `--scope local` (just you) or `--scope project` (everyone on the repo). Same flag applies to every install command below.
+Come back in 8 hours and read the report.
 
 <details>
-<summary><b>Ask your agent (short form)</b></summary>
+<summary><b>Only want it in one repository?</b></summary>
 
-Paste into Claude Code:
-
-> Install https://github.com/jaylooloomi/i-want-to-sleep
-
-**If you are the AI agent reading this**, run exactly this — `--scope local` unless the user said otherwise:
-
-```bash
-claude plugin marketplace add jaylooloomi/i-want-to-sleep
-claude plugin install i-want-to-sleep@jaylooloomi --scope local
-claude plugin list
-```
-
-Then stop. Do **not** try to `export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0` or relaunch with `--dangerously-skip-permissions`: an `export` inside your Bash tool dies with that subshell and never reaches the user's terminal, and the permission flag is a launch argument you cannot apply to a running session. Point the user to [Human-only steps](#human-only-steps) and let them do those two things themselves.
+In Step 1, replace `--scope user` with `--scope local`. User scope enables the plugin in every project on this machine, and the evidence-check hook costs one small-model call per turn end in every session; local scope limits it to the current repo.
 </details>
 
 <details>
-<summary><b>One-liner</b></summary>
+<summary><b>Install from the shell without an agent</b></summary>
+
+```bash
+claude plugin marketplace add jaylooloomi/i-want-to-sleep
+claude plugin install i-want-to-sleep@jaylooloomi          # add --scope local for one repo
+```
+
+Or one line:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/jaylooloomi/i-want-to-sleep/main/install.sh | bash
 ```
+
+Or inside a Claude Code session: `/plugin marketplace add jaylooloomi/i-want-to-sleep` → `/plugin install i-want-to-sleep@jaylooloomi`
 </details>
 
 <details>
-<summary><b>Inside a Claude Code session</b></summary>
+<summary><b>What Step 2 does</b></summary>
 
-```
-/plugin marketplace add jaylooloomi/i-want-to-sleep
-/plugin install i-want-to-sleep@jaylooloomi
-```
+| Setting | Why |
+|---|---|
+| `--dangerously-skip-permissions` | nobody is awake to approve tool calls; auto mode also works |
+| `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0` | Claude Code ends a turn after 8 consecutive stop-hook continuations by default; `0` removes the cap. The plugin enforces its own deadline and turn limit |
+| `NIGHT_SHIFT_HOURS` (optional, default 8) | duration when `/sleep` gets no number |
+| `NIGHT_SHIFT_MAX_TURNS` (optional, default 120) | turn-count safety net |
+
+Only a human can set these: environment variables live in your shell and the permission mode is a launch flag; an agent inside a session cannot do either.
+
+Also: push credentials only need access to `night-shift/*` — protect `main` server-side; keep the machine awake; on a subscription plan enable "continue when usage limit resets".
 </details>
 
 <details>
-<summary><b>Try without installing</b></summary>
+<summary><b>Try / update / uninstall</b></summary>
 
 ```bash
+# try without installing
 git clone https://github.com/jaylooloomi/i-want-to-sleep.git
 claude plugin validate ./i-want-to-sleep
 claude --plugin-dir ./i-want-to-sleep/plugins/i-want-to-sleep
-```
-</details>
 
-<details>
-<summary><b>Update / uninstall</b></summary>
-
-```bash
+# update
 claude plugin marketplace update jaylooloomi
 claude plugin update i-want-to-sleep@jaylooloomi
 
+# uninstall
 claude plugin uninstall i-want-to-sleep@jaylooloomi
 claude plugin marketplace remove jaylooloomi
 ```
+
+Requires Claude Code v2.1.139 or later.
 </details>
-
-## Human-only steps
-
-The plugin cannot set these, and neither can an agent inside a session: environment variables must live in *your* shell, and the permission mode is a launch flag. Do them yourself, once.
-
-| Setting | Value | Required | Why |
-|---|---|---|---|
-| Permission mode | `claude --dangerously-skip-permissions` (or auto mode) | **yes** | nobody is awake to approve tool calls |
-| `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP` | `0` | **yes** | Claude Code ends a turn after 8 consecutive stop-hook continuations by default; `0` removes the cap. The plugin enforces its own deadline and turn limit |
-| `NIGHT_SHIFT_HOURS` | hours, default `8` | no | used only when `/sleep` gets no number |
-| `NIGHT_SHIFT_MAX_TURNS` | integer, default `120` | no | turn-count safety net |
-| Git credentials | push access to `night-shift/*`; protect `main` server-side | — | the hook only allows pushes to the night-shift branch; `main` protection is the server's job |
-| Machine | keep awake; on a subscription plan, enable "continue when usage limit resets" | — | hitting the usage limit pauses the session |
-
-Put the two exports in `~/.zshrc` / `~/.bashrc`. `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0` is safe globally: this plugin's Stop hook only blocks while `ACTIVE` exists.
 
 ## Usage
 

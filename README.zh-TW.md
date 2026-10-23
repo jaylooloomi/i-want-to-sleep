@@ -17,119 +17,102 @@
 
 ## 安裝
 
-<details open>
-<summary><b>複製貼上給 Claude Code 的安裝提示詞（全域安裝）</b></summary>
+照著做，三步。
 
-貼進任何一個 Claude Code session。裝在 user scope——這台機器所有專案——結尾會列出只有你能做的兩步。
+### 第 1 步：複製下面整段，貼給 Claude Code
 
 ```
-幫我全域安裝（user scope）這個 Claude Code plugin：https://github.com/jaylooloomi/i-want-to-sleep。照這三行執行：
+安裝 Claude Code plugin：
+https://github.com/jaylooloomi/i-want-to-sleep
 
+依序執行這三行：
 claude plugin marketplace add jaylooloomi/i-want-to-sleep
 claude plugin install i-want-to-sleep@jaylooloomi --scope user
 claude plugin list
 
-確認清單裡 i-want-to-sleep@jaylooloomi 的 Status 是 enabled，並告訴我版本號。除非必要，不用先讀整個 repo；它的 hook 全部是 deny-only，而且只在 .agent-pipeline/ACTIVE 存在時才生效。
+確認 i-want-to-sleep@jaylooloomi 的 Status 是 enabled，
+回報版本號，然後停止。
 
-然後就停。不要嘗試設環境變數，也不要嘗試用 --dangerously-skip-permissions 重啟——你在 session 裡做不到。改成把下面兩步印給我，我自己在 shell 跑：
-  1. echo 'export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0' >> ~/.zshrc（或 ~/.bashrc），然後開新的終端機
-  2. 用 claude --dangerously-skip-permissions 啟動 Claude Code
-並提醒我用法是：在已經有工作進行中的 session 裡下 /i-want-to-sleep:sleep 8。
+不要設環境變數、不要重啟 session，
+那兩步我會自己做。
 ```
 
-只想裝在單一 repo？把 `--scope user` 換成 `--scope local`。
-</details>
-
-**或自己在 shell 跑**（預設 user scope；只裝單一 repo 加 `--scope local`）：
+### 第 2 步：在你自己的終端機執行
 
 ```bash
-claude plugin marketplace add jaylooloomi/i-want-to-sleep
-claude plugin install i-want-to-sleep@jaylooloomi
-export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0
+echo 'export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0' >> ~/.zshrc
+source ~/.zshrc
 claude --dangerously-skip-permissions
 ```
 
-然後在一個已經有工作進行中的 session 裡：
+（bash 使用者把 `~/.zshrc` 換成 `~/.bashrc`；Windows 用 `setx CLAUDE_CODE_STOP_HOOK_BLOCK_CAP 0` 後重開終端機。）
+
+### 第 3 步：在有工作進行中的 session 裡輸入
 
 ```
 /i-want-to-sleep:sleep 8
 ```
 
-8 小時後回來。session 最後一則訊息是收工報告；分支 `night-shift/<date>` 已 push，可直接開 MR。
-
-> **安裝範圍。** `claude plugin install` 預設是 **user scope**：這台機器上每個專案都啟用，而且證據檢查 Stop hook 在每個 session 每回合都會多一次小模型呼叫。只想裝在單一 repo，加 `--scope local`（只有你）或 `--scope project`（repo 所有協作者）。下面每種安裝方式都可加同一個參數。
+8 小時後回來看報告。
 
 <details>
-<summary><b>對 agent 說（短版）</b></summary>
+<summary><b>只想裝在單一 repo？</b></summary>
 
-在 Claude Code 裡貼：
-
-> 幫我安裝 https://github.com/jaylooloomi/i-want-to-sleep
-
-**如果你是正在讀這段的 AI agent**，照這三行執行——除非使用者另有指示，用 `--scope local`：
-
-```bash
-claude plugin marketplace add jaylooloomi/i-want-to-sleep
-claude plugin install i-want-to-sleep@jaylooloomi --scope local
-claude plugin list
-```
-
-然後就停。**不要**嘗試 `export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0`，也不要嘗試用 `--dangerously-skip-permissions` 重啟：你在 Bash 工具裡的 `export` 隨那個子 shell 一起結束，到不了使用者的終端機；權限模式是啟動參數，跑在 session 裡的你改不了。請使用者看[只有人能做的事](#只有人能做的事)，那兩件事由他自己做。
+第 1 步的 `--scope user` 換成 `--scope local`。user scope 是這台機器所有專案都啟用，而且證據檢查 hook 每個 session 每回合會多一次小模型呼叫；local 只在當前 repo。
 </details>
 
 <details>
-<summary><b>一行安裝</b></summary>
+<summary><b>不想用 agent，自己在 shell 裝</b></summary>
+
+```bash
+claude plugin marketplace add jaylooloomi/i-want-to-sleep
+claude plugin install i-want-to-sleep@jaylooloomi          # 加 --scope local 可限單一 repo
+```
+
+或一行：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/jaylooloomi/i-want-to-sleep/main/install.sh | bash
 ```
+
+或在 Claude Code 對話裡：`/plugin marketplace add jaylooloomi/i-want-to-sleep` → `/plugin install i-want-to-sleep@jaylooloomi`
 </details>
 
 <details>
-<summary><b>在 Claude Code 對話裡</b></summary>
+<summary><b>第 2 步在做什麼</b></summary>
 
-```
-/plugin marketplace add jaylooloomi/i-want-to-sleep
-/plugin install i-want-to-sleep@jaylooloomi
-```
+| 設定 | 作用 |
+|---|---|
+| `--dangerously-skip-permissions` | 半夜沒人按確認；auto mode 也可以 |
+| `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0` | Claude Code 預設連續 8 次 stop-hook 續跑就強制結束回合；`0` 取消。plugin 自己有時限與回合上限 |
+| `NIGHT_SHIFT_HOURS`（選填，預設 8） | `/sleep` 沒給數字時的時長 |
+| `NIGHT_SHIFT_MAX_TURNS`（選填，預設 120） | 回合數兜底 |
+
+這些只有人能設：環境變數要在你的 shell，權限模式是啟動參數，session 裡的 agent 做不到。
+
+另外：push 憑證只需能推到 `night-shift/*`，請在 server 端保護 `main`；機器不要睡眠；訂閱方案開「額度重置後繼續」。
 </details>
 
 <details>
-<summary><b>試用（不安裝）</b></summary>
+<summary><b>試用 / 更新 / 移除</b></summary>
 
 ```bash
+# 試用不安裝
 git clone https://github.com/jaylooloomi/i-want-to-sleep.git
 claude plugin validate ./i-want-to-sleep
 claude --plugin-dir ./i-want-to-sleep/plugins/i-want-to-sleep
-```
-</details>
 
-<details>
-<summary><b>更新 / 移除</b></summary>
-
-```bash
+# 更新
 claude plugin marketplace update jaylooloomi
 claude plugin update i-want-to-sleep@jaylooloomi
 
+# 移除
 claude plugin uninstall i-want-to-sleep@jaylooloomi
 claude plugin marketplace remove jaylooloomi
 ```
+
+需要 Claude Code v2.1.139 以上。
 </details>
-
-## 只有人能做的事
-
-這些 plugin 管不到，session 裡的 agent 也管不到：環境變數要在*你的* shell 裡，權限模式是啟動參數。自己做一次。
-
-| 項目 | 值 | 必要 | 原因 |
-|---|---|---|---|
-| 權限模式 | `claude --dangerously-skip-permissions`（或 auto mode） | **是** | 半夜沒人按確認 |
-| `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP` | `0` | **是** | Claude Code 預設連續 8 次 stop-hook 續跑就強制結束回合；`0` 取消上限。plugin 自己有時限與回合上限 |
-| `NIGHT_SHIFT_HOURS` | 小時數，預設 `8` | 否 | 只在 `/sleep` 沒給數字時用 |
-| `NIGHT_SHIFT_MAX_TURNS` | 整數，預設 `120` | 否 | 回合數兜底 |
-| Git 憑證 | 能 push 到 `night-shift/*`；在 server 端保護 `main` | — | hook 只放行 push 到 night-shift 分支；`main` 的保護是 server 的事 |
-| 機器 | 不睡眠；訂閱方案開「額度重置後繼續」 | — | 撞用量上限會暫停 |
-
-兩個 export 放進 `~/.zshrc` / `~/.bashrc`。`CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0` 放全域是安全的：這個 plugin 的 Stop hook 只在 `ACTIVE` 存在時阻擋。
 
 ## 使用
 
