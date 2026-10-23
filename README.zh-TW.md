@@ -9,6 +9,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT"></a>
   <img src="https://img.shields.io/badge/version-0.6.0-informational" alt="version">
   <img src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.139-orange" alt="Claude Code ≥ 2.1.139">
+  <img src="https://img.shields.io/badge/OpenAI%20Codex-%E2%89%A5%200.122-black" alt="OpenAI Codex ≥ 0.122">
   <a href="README.md"><img src="https://img.shields.io/badge/lang-English-green" alt="English"></a>
 </p>
 
@@ -277,7 +278,7 @@ Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 
 - 防線是 pattern 黑名單，為了不誤殺正常指令偏保守；有心的模型找得到繞法。真正的安全網是分支隔離＋受保護的 `main`。
 - 收工報告的格式是 skill 指示；context 半夜被壓縮時可能走樣，以 `result.md` 為準。
-- 目前實戰兩晚（見上方戰績）。你自己的第一次，還是盯一下前幾回合。
+- 目前實戰兩晚（見上方戰績），都在 Claude Code 上。Codex 支援是新加的，尚未實戰驗證。你自己的第一次，還是盯一下前幾回合。
 
 ## 貢獻
 
