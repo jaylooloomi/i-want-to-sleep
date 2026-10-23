@@ -7,7 +7,7 @@ rather than the whole command line. Falls back to whole-string matching only
 when the command cannot be parsed.
 Exit 2 + stderr = block. Exit 0 = allow.
 """
-import json, os, re, shlex, sys
+import json, os, re, shlex, subprocess, sys
 
 PROTECTED = re.compile(
     r'(\.gitlab-ci\.yml|\.github/workflows|(^|/)[Mm]igrations?/|appsettings[^/\s]*\.json'
@@ -108,7 +108,13 @@ def fallback(cmd):
         deny("危險指令（命令無法解析，保守阻擋）")
 
 def main():
-    root = os.environ.get('CLAUDE_PROJECT_DIR') or os.getcwd()
+    root = os.environ.get('CLAUDE_PROJECT_DIR')
+    if not root:
+        try:
+            root = subprocess.run(['git', 'rev-parse', '--show-toplevel'], capture_output=True, text=True, timeout=5).stdout.strip()
+        except Exception:
+            root = ''
+    root = root or os.getcwd()
     if not os.path.isfile(os.path.join(root, '.agent-pipeline', 'ACTIVE')):
         return
     try:

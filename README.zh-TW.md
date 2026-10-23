@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.5.1-informational" alt="version">
+  <img src="https://img.shields.io/badge/version-0.6.0-informational" alt="version">
   <img src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.139-orange" alt="Claude Code ≥ 2.1.139">
   <a href="README.md"><img src="https://img.shields.io/badge/lang-English-green" alt="English"></a>
 </p>
@@ -62,6 +62,26 @@ claude --dangerously-skip-permissions
 ```
 
 8 小時後回來看報告。
+
+<details>
+<summary><b>用 OpenAI Codex？</b></summary>
+
+貼給 Codex：
+
+```
+1. codex plugin marketplace add jaylooloomi/i-want-to-sleep
+2. codex plugin add i-want-to-sleep@jaylooloomi
+3. 回報完成
+```
+
+接著：
+
+1. 開**新的** Codex session，輸入 `/hooks`，信任 i-want-to-sleep 的 hook。**沒做這步什麼都不會跑**：Codex 不會執行未經信任的 plugin hook。
+2. 用不需逐步核准的模式執行。
+3. 說「我要睡覺了，接手 8 小時」（Codex 沒有 `/sleep` 指令，skill 靠這句話觸發）。
+
+Codex 上的差異：小模型證據檢查 hook 不會跑（Codex 跳過 prompt 型 hook）；scope-reviewer / scorer / reporter 子代理改用 Codex 自己的 agent 或獨立步驟代替。防線和 Stop hook 迴圈完全一樣。需要 Codex CLI 0.122 以上。
+</details>
 
 <details>
 <summary><b>只想裝在單一 repo？</b></summary>
@@ -210,9 +230,10 @@ Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 |---|---|
 | Claude Code（CLI、桌面版、Remote Control）≥ 2.1.139 | ✅ 支援 |
 | claude.ai 網頁 / 手機聊天 | ❌ 無法無人看管地跑 session |
-| OpenAI Codex CLI、Cursor、Gemini CLI、Copilot CLI … | ❌ 尚未——skill、`/sleep` 指令、兩種 hook 目前都打包成 Claude Code plugin |
+| OpenAI Codex CLI ≥ 0.122 | ✅ 支援（0.6.0 起）——需在 `/hooks` 信任；無證據檢查 hook；無 `/sleep` 指令 |
+| Cursor、Gemini CLI、Copilot CLI … | ❌ 尚未 |
 
-這個 plugin 沒有用 `/goal`，它建立在 Claude Code 的 Stop 與 PreToolUse hook 上。Codex、Cursor、Gemini CLI、Copilot CLI 都有等價的 stop hook 機制（跨環境範例見 [goal-loop](https://github.com/bodecloud/goal-loop)），所以移植可行：流程（`SKILL.md`）原樣搬過去，兩個 shell 防線改成各家的 hook 格式。歡迎 PR。
+同一個 plugin 資料夾同時有 Claude Code manifest（`.claude-plugin/`）和 Codex manifest（`.codex-plugin/`）；Codex 執行同一套 hook 腳本，並為相容性提供 `CLAUDE_PLUGIN_ROOT`。Cursor、Gemini CLI、Copilot CLI 也有等價的 stop hook（見 [goal-loop](https://github.com/bodecloud/goal-loop)）。歡迎 PR。
 
 ## 內容物
 
@@ -227,7 +248,9 @@ Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 | `plugins/i-want-to-sleep/agents/scope-reviewer.md` | Haiku 子代理：scope.md 第二雙眼睛 |
 | `plugins/i-want-to-sleep/agents/scorer.md` | Haiku 子代理：獨立候選評分，並對照最近 30 天 commit 去重 |
 | `plugins/i-want-to-sleep/agents/reporter.md` | Haiku 子代理：從 `result.md` 產生早上的報告 |
-| `.claude-plugin/marketplace.json` | 讓這個 repo 可直接當 marketplace 安裝 |
+| `.claude-plugin/marketplace.json` | Claude Code marketplace |
+| `.agents/plugins/marketplace.json` | Codex marketplace |
+| `plugins/i-want-to-sleep/.codex-plugin/plugin.json` | Codex plugin manifest |
 | `install.sh` | 一行安裝腳本 |
 
 ## 常見問題

@@ -2,7 +2,8 @@
 # Stop hook：夜班進行中就把 Claude 推回去繼續；白天（沒有 ACTIVE 檔）完全不干擾。
 # exit 0 = 允許停止；exit 2 + stderr = 阻止停止，stderr 內容會回給 Claude 當下一回合的指示。
 set -u
-P="${CLAUDE_PROJECT_DIR:-$PWD}/.agent-pipeline"
+ROOT="${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
+P="$ROOT/.agent-pipeline"
 
 [ -f "$P/ACTIVE" ] || exit 0          # 不是夜班 → 正常停止
 [ -f "$P/DONE" ]   && exit 0          # 已收工 → 放行

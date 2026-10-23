@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.5.1-informational" alt="version">
+  <img src="https://img.shields.io/badge/version-0.6.0-informational" alt="version">
   <img src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.139-orange" alt="Claude Code ≥ 2.1.139">
   <a href="README.zh-TW.md"><img src="https://img.shields.io/badge/lang-繁體中文-green" alt="繁體中文"></a>
 </p>
@@ -62,6 +62,26 @@ claude --dangerously-skip-permissions
 ```
 
 Come back in 8 hours and read the report.
+
+<details>
+<summary><b>Using OpenAI Codex instead?</b></summary>
+
+Paste this into Codex:
+
+```
+1. codex plugin marketplace add jaylooloomi/i-want-to-sleep
+2. codex plugin add i-want-to-sleep@jaylooloomi
+3. Report done
+```
+
+Then:
+
+1. Start a **new** Codex session and run `/hooks` — trust the i-want-to-sleep hooks. **Skip this and nothing runs**: Codex does not execute plugin hooks until you trust them.
+2. Run in a mode that doesn't stop for approvals.
+3. Say "I'm going to sleep, take over for 8 hours" (there is no `/sleep` command in Codex; the skill triggers on the sentence).
+
+What differs on Codex: the small-model evidence-check hook is skipped (Codex ignores prompt-type hooks), and the scope-reviewer / scorer / reporter subagents fall back to Codex's own agents or a separate pass. Guards and the Stop-hook loop work the same. Requires Codex CLI ≥ 0.122.
+</details>
 
 <details>
 <summary><b>Only want it in one repository?</b></summary>
@@ -209,9 +229,10 @@ The deterministic hooks are inert when `ACTIVE` is absent. The evidence-check ho
 |---|---|
 | Claude Code (CLI, desktop app, Remote Control) ≥ 2.1.139 | ✅ supported |
 | claude.ai web / mobile chat | ❌ cannot run a session unattended |
-| OpenAI Codex CLI, Cursor, Gemini CLI, Copilot CLI, … | ❌ not yet — the skill, the `/sleep` command and both hooks are packaged as a Claude Code plugin |
+| OpenAI Codex CLI ≥ 0.122 | ✅ supported (0.6.0+) — trust hooks via `/hooks`; no evidence-check hook; no `/sleep` command |
+| Cursor, Gemini CLI, Copilot CLI, … | ❌ not yet |
 
-This plugin does not use `/goal`; it is built on Claude Code's Stop and PreToolUse hooks. Codex, Cursor, Gemini CLI and Copilot CLI all have stop-hook equivalents (see [goal-loop](https://github.com/bodecloud/goal-loop) for a cross-harness example), so a port is feasible: the procedure (`SKILL.md`) moves as-is, the two shell guards need each harness's hook format. PRs welcome.
+The same plugin folder ships both a Claude Code manifest (`.claude-plugin/`) and a Codex manifest (`.codex-plugin/`); Codex runs the same hook scripts and exports `CLAUDE_PLUGIN_ROOT` for compatibility. Cursor, Gemini CLI and Copilot CLI have stop-hook equivalents too (see [goal-loop](https://github.com/bodecloud/goal-loop)). PRs welcome.
 
 ## What's in the box
 
@@ -226,7 +247,9 @@ This plugin does not use `/goal`; it is built on Claude Code's Stop and PreToolU
 | `plugins/i-want-to-sleep/agents/scope-reviewer.md` | Haiku subagent: second reading of `scope.md` |
 | `plugins/i-want-to-sleep/agents/scorer.md` | Haiku subagent: independent candidate scoring, dedup against last 30 days of commits |
 | `plugins/i-want-to-sleep/agents/reporter.md` | Haiku subagent: writes the morning report from `result.md` |
-| `.claude-plugin/marketplace.json` | makes this repo installable as a marketplace |
+| `.claude-plugin/marketplace.json` | Claude Code marketplace |
+| `.agents/plugins/marketplace.json` | Codex marketplace |
+| `plugins/i-want-to-sleep/.codex-plugin/plugin.json` | Codex plugin manifest |
 | `install.sh` | one-line installer |
 
 ## FAQ

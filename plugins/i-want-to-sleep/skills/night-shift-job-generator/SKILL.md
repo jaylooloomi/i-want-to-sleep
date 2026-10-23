@@ -13,6 +13,12 @@ description: 接手代理。當使用者說「我要睡覺了」「你接手」�
 - **為審閱而設計**：早上使用者只有 30 分鐘。每個加分項獨立 commit、可獨立 revert、result.md 一眼看懂。
 - **機制說明**：你不需要自己維持迴圈。只要 `.agent-pipeline/ACTIVE` 存在且 `DONE` 不存在，plugin 的 Stop hook 會在你每次想停下時把你推回來。你的工作是照下面的順序做，並在每回合留下證據。
 
+## 執行環境差異（Claude Code / Codex）
+
+- **子代理**：`scope-reviewer`、`scorer`、`reporter` 是 Claude Code 子代理。在沒有它們的環境（例如 Codex），改用環境提供的子代理／平行 agent 功能，把對應的 `agents/*.md` 內容當指示交給它；若完全沒有子代理能力，自己另開一個獨立步驟照該檔案執行，並在 result.md 對應段落註明「未經獨立審查」。
+- **指令**：Codex 沒有 `/i-want-to-sleep:sleep`；使用者說「我要睡覺了」「接手 N 小時」即觸發，時數從句子裡取。
+- **證據檢查 hook**：Codex 會跳過 prompt 型 hook，所以「每回合必做」的證據協議在 Codex 上只能靠你自律，照做。
+
 ## 執行順序
 
 ### Step 0 — 開分支、立旗標

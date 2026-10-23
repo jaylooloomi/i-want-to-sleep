@@ -1,0 +1,27 @@
+{
+  "name": "i-want-to-sleep",
+  "version": "0.6.0",
+  "description": "Say \"I'm going to sleep\" and the agent takes over for N hours on a guarded night-shift branch.",
+  "author": {
+    "name": "Arthur Wang",
+    "url": "https://github.com/jaylooloomi"
+  },
+  "homepage": "https://github.com/jaylooloomi/i-want-to-sleep",
+  "repository": "https://github.com/jaylooloomi/i-want-to-sleep",
+  "license": "MIT",
+  "keywords": ["night-shift", "autonomous", "overnight", "stop-hook"],
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
+  "interface": {
+    "displayName": "I Want To Sleep",
+    "shortDescription": "Hand your session over for N hours. Wake up to a tested branch and a report.",
+    "longDescription": "Opens a night-shift branch, finishes the conversation's unfinished items, then keeps researching, scoring and implementing bonus features until the deadline. Stop hook keeps it running; PreToolUse guards block pushes outside the branch, destructive git, package installs and edits to CI, migrations, config and dependency files.",
+    "developerName": "Arthur Wang",
+    "category": "Productivity",
+    "capabilities": ["Interactive", "Read", "Write"],
+    "defaultPrompt": [
+      "I'm going to sleep — take over for 8 hours",
+      "Take over for 2 hours, wrap-up only"
+    ]
+  }
+}
