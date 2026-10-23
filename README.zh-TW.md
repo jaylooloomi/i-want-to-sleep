@@ -22,28 +22,20 @@
 ### 第 1 步：複製下面整段，貼給 Claude Code
 
 ```
-安裝 Claude Code plugin：
-https://github.com/jaylooloomi/i-want-to-sleep
-
-(1) 依序執行：
-claude plugin marketplace add jaylooloomi/i-want-to-sleep
-claude plugin install i-want-to-sleep@jaylooloomi --scope user
-claude plugin list
-
-(2) 把 "CLAUDE_CODE_STOP_HOOK_BLOCK_CAP": "0" 合併進
-~/.claude/settings.json 的 "env" 物件
-（檔案或物件不存在就建，其他既有設定保留）。
-
-做完告訴我，然後停止。
+1. claude plugin marketplace add jaylooloomi/i-want-to-sleep
+2. claude plugin install i-want-to-sleep@jaylooloomi --scope user
+3. claude plugin list，確認 i-want-to-sleep@jaylooloomi 是 enabled
+4. 在 ~/.claude/settings.json 的 "env" 加入 "CLAUDE_CODE_STOP_HOOK_BLOCK_CAP": "0"（保留既有內容）
+5. 回報完成
 ```
 
-### 第 2 步：重開 Claude Code（跳過權限確認）
+### 第 2 步：重開 Claude Code
 
 ```bash
 claude --dangerously-skip-permissions
 ```
 
-第一次會跳一個風險確認，按接受。每晚啟動都加這個 flag——這就是你同意「今晚不問我」的動作。
+第一次會跳風險確認，按接受。
 
 ### 第 3 步：在有工作進行中的 session 裡輸入
 

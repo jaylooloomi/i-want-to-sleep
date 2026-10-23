@@ -22,28 +22,20 @@ Three steps. Follow them in order.
 ### Step 1: copy this block and paste it into Claude Code
 
 ```
-Install the Claude Code plugin:
-https://github.com/jaylooloomi/i-want-to-sleep
-
-(1) Run in order:
-claude plugin marketplace add jaylooloomi/i-want-to-sleep
-claude plugin install i-want-to-sleep@jaylooloomi --scope user
-claude plugin list
-
-(2) Merge "CLAUDE_CODE_STOP_HOOK_BLOCK_CAP": "0" into the "env"
-object of ~/.claude/settings.json
-(create the file or object if missing; keep every existing key).
-
-Tell me when done, then stop.
+1. claude plugin marketplace add jaylooloomi/i-want-to-sleep
+2. claude plugin install i-want-to-sleep@jaylooloomi --scope user
+3. claude plugin list — confirm i-want-to-sleep@jaylooloomi is enabled
+4. In ~/.claude/settings.json, add "CLAUDE_CODE_STOP_HOOK_BLOCK_CAP": "0" to "env" (keep existing content)
+5. Report done
 ```
 
-### Step 2: restart Claude Code, skipping permission prompts
+### Step 2: restart Claude Code
 
 ```bash
 claude --dangerously-skip-permissions
 ```
 
-The first time it shows a one-time warning — accept it. Add this flag every night you start a shift; it is your explicit "don't ask me tonight".
+Accept the one-time warning.
 
 ### Step 3: in a session that already has work in progress, type
 
