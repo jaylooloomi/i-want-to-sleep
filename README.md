@@ -29,13 +29,16 @@ Three steps. Follow them in order.
 5. Report done
 ```
 
-### Step 2: restart Claude Code
+### Step 2: start a new session in Bypass permissions
 
+**Desktop app (Code tab)**
+1. Bottom-left Settings → Claude Code → turn on "Allow bypass permissions mode" (once)
+2. Start a new session; in the mode selector at the bottom pick **Bypass permissions** (Auto mode also works)
+
+**Terminal**
 ```bash
 claude --dangerously-skip-permissions
 ```
-
-Accept the one-time warning.
 
 ### Step 3: in a session that already has work in progress, type
 
@@ -87,7 +90,7 @@ claude --dangerously-skip-permissions
 | `NIGHT_SHIFT_HOURS` (optional, default 8) | duration when `/sleep` gets no number |
 | `NIGHT_SHIFT_MAX_TURNS` (optional, default 120) | turn-count safety net |
 
-The permission mode is fixed once a session starts, so restarting after Step 1 is the one thing an agent cannot do for you.
+The permission mode is fixed once a session starts, so opening a new session after Step 1 is the one thing an agent cannot do for you.
 
 Also: push credentials only need access to `night-shift/*` — protect `main` server-side; keep the machine awake; on a subscription plan enable "continue when usage limit resets".
 </details>

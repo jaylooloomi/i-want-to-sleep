@@ -29,13 +29,16 @@
 5. 回報完成
 ```
 
-### 第 2 步：重開 Claude Code
+### 第 2 步：開新 session，選 Bypass permissions
 
+**桌面版（Code 分頁）**
+1. 左下角 Settings → Claude Code → 開啟「Allow bypass permissions mode」（一次就好）
+2. 開新 session，底部模式選擇器選 **Bypass permissions**（Auto mode 也可以）
+
+**終端機**
 ```bash
 claude --dangerously-skip-permissions
 ```
-
-第一次會跳風險確認，按接受。
 
 ### 第 3 步：在有工作進行中的 session 裡輸入
 
@@ -87,7 +90,7 @@ claude --dangerously-skip-permissions
 | `NIGHT_SHIFT_HOURS`（選填，預設 8） | `/sleep` 沒給數字時的時長 |
 | `NIGHT_SHIFT_MAX_TURNS`（選填，預設 120） | 回合數兜底 |
 
-權限模式在 session 開啟後就固定了，所以第 1 步做完一定要重開，這是唯一 agent 替你做不了的事。
+權限模式在 session 開啟後就固定了，所以第 1 步做完要開新 session，這是唯一 agent 替你做不了的事。
 
 另外：push 憑證只需能推到 `night-shift/*`，請在 server 端保護 `main`；機器不要睡眠；訂閱方案開「額度重置後繼續」。
 </details>
