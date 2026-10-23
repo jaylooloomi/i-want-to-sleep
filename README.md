@@ -22,31 +22,28 @@ Three steps. Follow them in order.
 ### Step 1: copy this block and paste it into Claude Code
 
 ```
-Install and configure the Claude Code plugin:
+Install the Claude Code plugin:
 https://github.com/jaylooloomi/i-want-to-sleep
 
 (1) Run in order:
 claude plugin marketplace add jaylooloomi/i-want-to-sleep
 claude plugin install i-want-to-sleep@jaylooloomi --scope user
 claude plugin list
-Confirm i-want-to-sleep@jaylooloomi shows Status: enabled.
 
 (2) Merge "CLAUDE_CODE_STOP_HOOK_BLOCK_CAP": "0" into the "env"
-object of ~/.claude/settings.json (create the file or object if
-missing; keep every existing key).
+object of ~/.claude/settings.json
+(create the file or object if missing; keep every existing key).
 
-(3) Merge "permissions": { "defaultMode": "bypassPermissions" }
-into THIS repo's .claude/settings.local.json (not the global
-file; keep existing keys).
-
-(4) Print both files as they now stand, report the plugin
-version, then stop. Do not try to activate anything in this
-session; I will restart it.
+Tell me when done, then stop.
 ```
 
-### Step 2: restart Claude Code
+### Step 2: restart Claude Code, skipping permission prompts
 
-Start `claude` again in the same repo. The first time, it shows a one-time warning about bypassPermissions — accept it (it never asks again).
+```bash
+claude --dangerously-skip-permissions
+```
+
+The first time it shows a one-time warning — accept it. Add this flag every night you start a shift; it is your explicit "don't ask me tonight".
 
 ### Step 3: in a session that already has work in progress, type
 
@@ -59,7 +56,7 @@ Come back in 8 hours and read the report.
 <details>
 <summary><b>Only want it in one repository?</b></summary>
 
-In Step 1 (1), replace `--scope user` with `--scope local`. User scope enables the plugin in every project on this machine, and the evidence-check hook costs one small-model call per turn end in every session; local scope limits it to the current repo. The permission mode in (3) is already repo-local.
+In Step 1 (1), replace `--scope user` with `--scope local`. User scope enables the plugin in every project on this machine, and the evidence-check hook costs one small-model call per turn end in every session; local scope limits it to the current repo.
 </details>
 
 <details>
@@ -76,30 +73,29 @@ Or one line:
 curl -fsSL https://raw.githubusercontent.com/jaylooloomi/i-want-to-sleep/main/install.sh | bash
 ```
 
-Then set the env var and permission mode, one of two ways:
+Then set the env var (one of two ways) and launch:
 
 ```bash
-# A. In Claude Code settings (recommended)
-#   ~/.claude/settings.json            → "env": { "CLAUDE_CODE_STOP_HOOK_BLOCK_CAP": "0" }
-#   <repo>/.claude/settings.local.json  → "permissions": { "defaultMode": "bypassPermissions" }
-
+# A. In Claude Code settings (once)
+#   ~/.claude/settings.json → "env": { "CLAUDE_CODE_STOP_HOOK_BLOCK_CAP": "0" }
 # B. Per launch
 export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0
+
 claude --dangerously-skip-permissions
 ```
 </details>
 
 <details>
-<summary><b>What Step 1 (2) and (3) do</b></summary>
+<summary><b>What these settings do</b></summary>
 
 | Setting | Why |
 |---|---|
-| `defaultMode: bypassPermissions` (repo `.claude/settings.local.json`) | nobody is awake to approve tool calls. Repo-local and gitignored; auto mode also works |
+| `--dangerously-skip-permissions` | nobody is awake to approve tool calls. To avoid typing it nightly, put `"permissions": { "defaultMode": "bypassPermissions" }` in the repo's `.claude/settings.local.json`; auto mode also works |
 | `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0` (`env` in `~/.claude/settings.json`) | Claude Code ends a turn after 8 consecutive stop-hook continuations by default; `0` removes the cap. The plugin enforces its own deadline and turn limit |
 | `NIGHT_SHIFT_HOURS` (optional, default 8) | duration when `/sleep` gets no number |
 | `NIGHT_SHIFT_MAX_TURNS` (optional, default 120) | turn-count safety net |
 
-The permission mode is fixed once a session starts, so a restart after configuring is the one thing an agent cannot do for you.
+The permission mode is fixed once a session starts, so restarting after Step 1 is the one thing an agent cannot do for you.
 
 Also: push credentials only need access to `night-shift/*` — protect `main` server-side; keep the machine awake; on a subscription plan enable "continue when usage limit resets".
 </details>

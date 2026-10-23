@@ -8,7 +8,6 @@ claude plugin install i-want-to-sleep@jaylooloomi ${SCOPE:+--scope "$SCOPE"}
 claude plugin list | grep -A1 i-want-to-sleep || true
 echo
 echo "Installed. Now configure (one of):"
-echo "  A. ~/.claude/settings.json  -> \"env\": { \"CLAUDE_CODE_STOP_HOOK_BLOCK_CAP\": \"0\" }"
-echo "     <repo>/.claude/settings.local.json -> \"permissions\": { \"defaultMode\": \"bypassPermissions\" }"
-echo "  B. export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0 && claude --dangerously-skip-permissions"
-echo "Then restart claude and type: /i-want-to-sleep:sleep 8"
+echo "  A. ~/.claude/settings.json -> \"env\": { \"CLAUDE_CODE_STOP_HOOK_BLOCK_CAP\": \"0\" }  (once)"
+echo "  B. export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0  (per launch)"
+echo "Then: claude --dangerously-skip-permissions  and type /i-want-to-sleep:sleep 8"
