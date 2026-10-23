@@ -33,11 +33,11 @@
 
 ## 安裝
 
-照著做，三步。
+選你用的 agent，照著做三步。
 
-### 第 1 步：複製你用的那一段，貼給 agent
+### Claude Code
 
-**Claude Code**
+**1. 複製這段，貼給 Claude Code**
 ```
 1. claude plugin marketplace add jaylooloomi/i-want-to-sleep
 2. claude plugin install i-want-to-sleep@jaylooloomi --scope user
@@ -46,38 +46,37 @@
 5. 回報完成
 ```
 
-**OpenAI Codex**
+**2. 開新 session，跳過權限確認**
+
+- 桌面版（Code 分頁）：左下角 Settings → Claude Code → 開啟「Allow bypass permissions mode」（一次就好）→ 開新 session，底部模式選擇器選 **Bypass permissions**（Auto mode 也可以）
+- 終端機：
+  ```bash
+  claude --dangerously-skip-permissions
+  ```
+
+**3. 在有工作進行中的 session 裡輸入**
+```
+/i-want-to-sleep:sleep 8
+```
+
+8 小時後回來看報告。
+
+### OpenAI Codex
+
+**1. 複製這段，貼給 Codex**
 ```
 1. codex plugin marketplace add jaylooloomi/i-want-to-sleep
 2. codex plugin add i-want-to-sleep@jaylooloomi
 3. 回報完成
 ```
 
-### 第 2 步：開新 session，跳過權限確認
-
-**Claude Code 桌面版（Code 分頁）**
-1. 左下角 Settings → Claude Code → 開啟「Allow bypass permissions mode」（一次就好）
-2. 開新 session，底部模式選擇器選 **Bypass permissions**（Auto mode 也可以）
-
-**Claude Code 終端機**
-```bash
-claude --dangerously-skip-permissions
-```
-
-**OpenAI Codex**
+**2. 開新 session，信任 hook**
 ```bash
 codex --yolo
 ```
-進去後先輸入 `/hooks`，信任 i-want-to-sleep 的 hook（一次就好）。**沒做這步什麼都不會跑**：Codex 不會執行未經信任的 plugin hook。
+進去後輸入 `/hooks`，信任 i-want-to-sleep 的 hook（一次就好）。**沒做這步什麼都不會跑**：Codex 不會執行未經信任的 plugin hook。
 
-### 第 3 步：在有工作進行中的 session 裡
-
-**Claude Code**
-```
-/i-want-to-sleep:sleep 8
-```
-
-**OpenAI Codex**（沒有 `/sleep` 指令，用說的）
+**3. 在有工作進行中的 session 裡說**（Codex 沒有 `/sleep` 指令）
 ```
 我要睡覺了，接手 8 小時
 ```
@@ -90,10 +89,12 @@ codex --yolo
 小模型證據檢查 hook 不會跑（Codex 跳過 prompt 型 hook）；scope-reviewer / scorer / reporter 子代理改用 Codex 自己的 agent 或獨立步驟代替。防線和 Stop hook 迴圈完全一樣。`--yolo` 也關掉 Codex 的 sandbox；想保留 sandbox 可改用 `--full-auto`，但它在需要網路（例如 push）時可能停下來等你核准。需要 Codex CLI 0.122 以上。
 </details>
 
+### 其他
+
 <details>
 <summary><b>只想裝在單一 repo？</b></summary>
 
-第 1 步 (1) 的 `--scope user` 換成 `--scope local`。user scope 是這台機器所有專案都啟用，而且證據檢查 hook 每個 session 每回合會多一次小模型呼叫；local 只在當前 repo。
+Claude Code 第 1 步的 `--scope user` 換成 `--scope local`。user scope 是這台機器所有專案都啟用，而且證據檢查 hook 每個 session 每回合會多一次小模型呼叫；local 只在當前 repo。
 </details>
 
 <details>

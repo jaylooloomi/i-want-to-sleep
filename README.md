@@ -33,11 +33,11 @@ It also reported five false positives in **its own guard rails** — and never a
 
 ## Install
 
-Three steps. Follow them in order.
+Pick your agent and follow its three steps.
 
-### Step 1: copy the block for your agent and paste it in
+### Claude Code
 
-**Claude Code**
+**1. Copy this and paste it into Claude Code**
 ```
 1. claude plugin marketplace add jaylooloomi/i-want-to-sleep
 2. claude plugin install i-want-to-sleep@jaylooloomi --scope user
@@ -46,38 +46,37 @@ Three steps. Follow them in order.
 5. Report done
 ```
 
-**OpenAI Codex**
+**2. Start a new session that skips approval prompts**
+
+- Desktop app (Code tab): bottom-left Settings → Claude Code → turn on "Allow bypass permissions mode" (once) → start a new session and pick **Bypass permissions** in the mode selector (Auto mode also works)
+- Terminal:
+  ```bash
+  claude --dangerously-skip-permissions
+  ```
+
+**3. In a session that already has work in progress, type**
+```
+/i-want-to-sleep:sleep 8
+```
+
+Come back in 8 hours and read the report.
+
+### OpenAI Codex
+
+**1. Copy this and paste it into Codex**
 ```
 1. codex plugin marketplace add jaylooloomi/i-want-to-sleep
 2. codex plugin add i-want-to-sleep@jaylooloomi
 3. Report done
 ```
 
-### Step 2: start a new session that skips approval prompts
-
-**Claude Code desktop app (Code tab)**
-1. Bottom-left Settings → Claude Code → turn on "Allow bypass permissions mode" (once)
-2. Start a new session; in the mode selector at the bottom pick **Bypass permissions** (Auto mode also works)
-
-**Claude Code terminal**
-```bash
-claude --dangerously-skip-permissions
-```
-
-**OpenAI Codex**
+**2. Start a new session and trust the hooks**
 ```bash
 codex --yolo
 ```
 Then run `/hooks` and trust the i-want-to-sleep hooks (once). **Skip this and nothing runs**: Codex does not execute plugin hooks until you trust them.
 
-### Step 3: in a session that already has work in progress
-
-**Claude Code**
-```
-/i-want-to-sleep:sleep 8
-```
-
-**OpenAI Codex** (no `/sleep` command — just say it)
+**3. In a session that already has work in progress, say** (Codex has no `/sleep` command)
 ```
 I'm going to sleep, take over for 8 hours
 ```
@@ -90,10 +89,12 @@ Come back in 8 hours and read the report.
 The small-model evidence-check hook is skipped (Codex ignores prompt-type hooks), and the scope-reviewer / scorer / reporter subagents fall back to Codex's own agents or a separate pass. Guards and the Stop-hook loop work the same. `--yolo` also disables Codex's sandbox; `--full-auto` keeps the sandbox but may pause for approval when it needs the network (e.g. to push). Requires Codex CLI ≥ 0.122.
 </details>
 
+### More options
+
 <details>
 <summary><b>Only want it in one repository?</b></summary>
 
-In Step 1 (1), replace `--scope user` with `--scope local`. User scope enables the plugin in every project on this machine, and the evidence-check hook costs one small-model call per turn end in every session; local scope limits it to the current repo.
+In the Claude Code step 1, replace `--scope user` with `--scope local`. User scope enables the plugin in every project on this machine, and the evidence-check hook costs one small-model call per turn end in every session; local scope limits it to the current repo.
 </details>
 
 <details>
