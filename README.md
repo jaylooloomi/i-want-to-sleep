@@ -1,7 +1,7 @@
 <h1 align="center">i-want-to-sleep 😴</h1>
 
 <p align="center">
-  <b>The Bay Area's most unhinged workflow. Now yours.</b><br>
+  <b>Silicon Valley's most unhinged workflow. Now yours.</b><br>
   Type <code>/sleep 8</code>. Go to bed. Wake up to shipped features, green tests, and a branch waiting for your merge.
 </p>
 

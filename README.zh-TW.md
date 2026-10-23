@@ -1,7 +1,7 @@
 <h1 align="center">i-want-to-sleep 😴</h1>
 
 <p align="center">
-  <b>你也能擁有灣區最狂的工作模式。</b><br>
+  <b>你也能擁有矽谷最狂的工作模式。</b><br>
   輸入 <code>/sleep 8</code>，去睡覺。醒來：功能做完、測試全綠、分支等你合併。
 </p>
 
