@@ -15,8 +15,6 @@
 
 <p align="center"><img src="docs/hero-zh.png" alt="左：白天，想睡的章魚坐在筆電前。/sleep 8。右：夜班，同一隻章魚戴安全帽，八隻觸手拿著扳手、鍵盤、咖啡、測試通過徽章、git 分支、放大鏡、筆記本並打字，終端機顯示 tests passed。" width="900"></p>
 
-<p align="center"><a href="docs/demo-zh-v1.mp4"><img src="docs/demo-zh-v1.gif" alt="10 秒示範：章魚想睡 → 輸入 /sleep 8 → 戴上安全帽接手 → 開分支、上網抄最好的做法、寫 code 跑測試 → 早上報告完成" width="640"></a><br><sub>▶ 點圖看有聲版</sub></p>
-
 ## 安裝
 
 照著做，三步。
@@ -156,6 +154,8 @@ claude plugin marketplace remove jaylooloomi
 | 早上面對 2,000 行 diff | 一個項目一個 commit；要的合併，不要的 `git revert` |
 
 ## 運作方式
+
+<p align="center"><a href="docs/demo-zh-v1.mp4"><img src="docs/demo-zh-v1.gif" alt="10 秒示範：章魚想睡 → 輸入 /sleep 8 → 戴上安全帽接手 → 開分支、上網抄最好的做法、寫 code 跑測試 → 早上報告完成" width="640"></a><br><sub>▶ 點圖看有聲版</sub></p>
 
 ```
 /sleep 8

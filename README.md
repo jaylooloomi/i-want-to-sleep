@@ -15,8 +15,6 @@
 
 <p align="center"><img src="docs/hero-en-v2.png" alt="Before: a sleepy octopus at a laptop. /sleep 8. After: the same octopus in a hard hat, eight tentacles holding a wrench, keyboard, coffee, a green tests-passed badge, a git branch, a magnifier, a notebook, and typing — the terminal reads tests passed." width="900"></p>
 
-<p align="center"><a href="docs/demo-zh-v1.mp4"><img src="docs/demo-zh-v1.gif" alt="10-second demo: sleepy octopus types /sleep 8, gears up, branches, researches, writes code, tests pass, morning report" width="640"></a><br><sub>▶ Click for the version with sound (Traditional Chinese captions)</sub></p>
-
 ## Install
 
 Three steps. Follow them in order.
@@ -156,6 +154,8 @@ This plugin removes that stop. It turns the open session into a bounded, guarded
 | You review a 2,000-line diff | One commit per item; merge the good ones, `git revert` the rest |
 
 ## How it works
+
+<p align="center"><a href="docs/demo-zh-v1.mp4"><img src="docs/demo-zh-v1.gif" alt="10-second demo: sleepy octopus types /sleep 8, gears up, branches, researches, writes code, tests pass, morning report" width="640"></a><br><sub>▶ Click for the version with sound (Traditional Chinese captions)</sub></p>
 
 ```
 /sleep 8
