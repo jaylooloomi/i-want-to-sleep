@@ -22,30 +22,30 @@
 ### 第 1 步：複製下面整段，貼給 Claude Code
 
 ```
-安裝 Claude Code plugin：
+安裝並設定 Claude Code plugin：
 https://github.com/jaylooloomi/i-want-to-sleep
 
-依序執行這三行：
+(1) 依序執行：
 claude plugin marketplace add jaylooloomi/i-want-to-sleep
 claude plugin install i-want-to-sleep@jaylooloomi --scope user
 claude plugin list
+確認 i-want-to-sleep@jaylooloomi 的 Status 是 enabled。
 
-確認 i-want-to-sleep@jaylooloomi 的 Status 是 enabled，
-回報版本號，然後停止。
+(2) 把 "CLAUDE_CODE_STOP_HOOK_BLOCK_CAP": "0" 合併進
+~/.claude/settings.json 的 "env" 物件（檔案或物件不存在就建，
+其他既有設定保留）。
 
-不要設環境變數、不要重啟 session，
-那兩步我會自己做。
+(3) 把 "permissions": { "defaultMode": "bypassPermissions" }
+合併進「這個 repo」的 .claude/settings.local.json
+（不要寫到全域；既有設定保留）。
+
+(4) 印出兩個檔案改完後的內容讓我看，回報 plugin 版本，然後停止。
+不要嘗試在這個 session 裡啟用任何東西，我會重開。
 ```
 
-### 第 2 步：在你自己的終端機執行
+### 第 2 步：重開 Claude Code
 
-```bash
-echo 'export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0' >> ~/.zshrc
-source ~/.zshrc
-claude --dangerously-skip-permissions
-```
-
-（bash 使用者把 `~/.zshrc` 換成 `~/.bashrc`；Windows 用 `setx CLAUDE_CODE_STOP_HOOK_BLOCK_CAP 0` 後重開終端機。）
+在同一個 repo 目錄重新啟動 `claude`。第一次會跳一個 bypassPermissions 的風險確認，按接受（只會問這一次）。
 
 ### 第 3 步：在有工作進行中的 session 裡輸入
 
@@ -58,11 +58,11 @@ claude --dangerously-skip-permissions
 <details>
 <summary><b>只想裝在單一 repo？</b></summary>
 
-第 1 步的 `--scope user` 換成 `--scope local`。user scope 是這台機器所有專案都啟用，而且證據檢查 hook 每個 session 每回合會多一次小模型呼叫；local 只在當前 repo。
+第 1 步 (1) 的 `--scope user` 換成 `--scope local`。user scope 是這台機器所有專案都啟用，而且證據檢查 hook 每個 session 每回合會多一次小模型呼叫；local 只在當前 repo。權限模式 (3) 本來就只寫在當前 repo。
 </details>
 
 <details>
-<summary><b>不想用 agent，自己在 shell 裝</b></summary>
+<summary><b>不想用 agent，自己做</b></summary>
 
 ```bash
 claude plugin marketplace add jaylooloomi/i-want-to-sleep
@@ -75,20 +75,30 @@ claude plugin install i-want-to-sleep@jaylooloomi          # 加 --scope local �
 curl -fsSL https://raw.githubusercontent.com/jaylooloomi/i-want-to-sleep/main/install.sh | bash
 ```
 
-或在 Claude Code 對話裡：`/plugin marketplace add jaylooloomi/i-want-to-sleep` → `/plugin install i-want-to-sleep@jaylooloomi`
+然後二選一設環境變數與權限：
+
+```bash
+# A. 寫進 Claude Code 設定（推薦）
+#   ~/.claude/settings.json            → "env": { "CLAUDE_CODE_STOP_HOOK_BLOCK_CAP": "0" }
+#   <repo>/.claude/settings.local.json  → "permissions": { "defaultMode": "bypassPermissions" }
+
+# B. 每次手動
+export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0
+claude --dangerously-skip-permissions
+```
 </details>
 
 <details>
-<summary><b>第 2 步在做什麼</b></summary>
+<summary><b>第 1 步 (2)(3) 在做什麼</b></summary>
 
 | 設定 | 作用 |
 |---|---|
-| `--dangerously-skip-permissions` | 半夜沒人按確認；auto mode 也可以 |
-| `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0` | Claude Code 預設連續 8 次 stop-hook 續跑就強制結束回合；`0` 取消。plugin 自己有時限與回合上限 |
+| `defaultMode: bypassPermissions`（repo 的 `.claude/settings.local.json`） | 半夜沒人按確認。只寫在這個 repo，gitignored；auto mode 也可以 |
+| `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0`（`~/.claude/settings.json` 的 `env`） | Claude Code 預設連續 8 次 stop-hook 續跑就強制結束回合；`0` 取消。plugin 自己有時限與回合上限 |
 | `NIGHT_SHIFT_HOURS`（選填，預設 8） | `/sleep` 沒給數字時的時長 |
 | `NIGHT_SHIFT_MAX_TURNS`（選填，預設 120） | 回合數兜底 |
 
-這些只有人能設：環境變數要在你的 shell，權限模式是啟動參數，session 裡的 agent 做不到。
+權限模式在 session 開啟後就固定了，所以設定完一定要重開，這是唯一 agent 替你做不了的事。
 
 另外：push 憑證只需能推到 `night-shift/*`，請在 server 端保護 `main`；機器不要睡眠；訂閱方案開「額度重置後繼續」。
 </details>

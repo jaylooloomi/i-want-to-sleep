@@ -7,4 +7,8 @@ claude plugin marketplace add jaylooloomi/i-want-to-sleep 2>/dev/null || claude 
 claude plugin install i-want-to-sleep@jaylooloomi ${SCOPE:+--scope "$SCOPE"}
 claude plugin list | grep -A1 i-want-to-sleep || true
 echo
-echo "Installed. Before the first night: export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0 and start with --dangerously-skip-permissions (see README > Before each night)."
+echo "Installed. Now configure (one of):"
+echo "  A. ~/.claude/settings.json  -> \"env\": { \"CLAUDE_CODE_STOP_HOOK_BLOCK_CAP\": \"0\" }"
+echo "     <repo>/.claude/settings.local.json -> \"permissions\": { \"defaultMode\": \"bypassPermissions\" }"
+echo "  B. export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0 && claude --dangerously-skip-permissions"
+echo "Then restart claude and type: /i-want-to-sleep:sleep 8"
