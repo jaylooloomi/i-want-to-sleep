@@ -1,19 +1,34 @@
-<h1 align="center">i-want-to-sleep</h1>
+<h1 align="center">i-want-to-sleep 😴</h1>
 
 <p align="center">
-  <b>說一句「我要睡覺了」，醒來看到做完的工作、測過的分支、一頁報告。</b><br>
-  一個讓 Claude Code 接手你 session N 小時的 plugin。
+  <b>你也能擁有灣區最狂的工作模式。</b><br>
+  輸入 <code>/sleep 8</code>，去睡覺。醒來：功能做完、測試全綠、分支等你合併。
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT"></a>
   <img src="https://img.shields.io/badge/version-0.5.1-informational" alt="version">
   <img src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.139-orange" alt="Claude Code ≥ 2.1.139">
-  <img src="https://img.shields.io/badge/harness-%E5%83%85%20Claude%20Code-lightgrey" alt="僅 Claude Code">
   <a href="README.md"><img src="https://img.shields.io/badge/lang-English-green" alt="English"></a>
 </p>
 
 <p align="center"><img src="docs/hero-zh.png" alt="左：白天，想睡的章魚坐在筆電前。/sleep 8。右：夜班，同一隻章魚戴安全帽，八隻觸手拿著扳手、鍵盤、咖啡、測試通過徽章、git 分支、放大鏡、筆記本並打字，終端機顯示 tests passed。" width="900"></p>
+
+## 昨晚的戰績
+
+兩個真實專案，兩個晚上，沒有擺拍。
+
+| | 🎮 Godot 派對遊戲 | 📈 台股產業熱力圖 |
+|---|---|---|
+| 新功能 | **7 個** | **25 個** |
+| 修掉的 bug | **7 個**——其中 3 個是測試框架自己在說謊 | 5 輪獨立 code review，問題全修 |
+| 測試 | 652 → **744**，外加新的 fuzz 關卡 | pytest **128** ✅ · node **27** ✅ |
+| 效能 | — | 換日期 **7–23 秒 → 0.65 秒** |
+| 知道何時收手 | 提早 **2.5 小時**收工——沒有值得做的了 | 提早 **5.5 小時**收工——連兩輪「不值得做」 |
+| 知道什麼不該碰 | 量到 4 人平手率 65%，**刻意不改**——那會改變誰贏，留給人決定 | 主動標出第三方資料來源，等**你**點頭 |
+| 隔天早上 | 審完、合併 | **25 個全部審完、合併** |
+
+它甚至對**自己的防護欄**開了 bug 報告——五次誤判——而且一次都沒有試圖繞過。（0.5.1 已修。）
 
 ## 安裝
 
@@ -141,17 +156,9 @@ claude plugin marketplace remove jaylooloomi
 
 ## 為什麼
 
-半夜十二點你停下來，功能做到一半。模型其實可以繼續——context 它有、測試它會跑——但每一回合結尾都是「還有什麼需要嗎？」，沒人在那裡說「有」。
+每天晚上你闔上筆電，功能做到一半。模型有 context、會跑測試，它只是停住了——每一回合都在問「還有什麼需要嗎？」，而你已經睡了。
 
-這個 plugin 把那個停頓拿掉，把開著的 session 變成有時限、有防線的自主執行：
-
-| 沒有它 | 有它 |
-|---|---|
-| 你停，工作就停 | 工作照你指定的小時數繼續 |
-| 隔夜 context 不見 | 對話被壓成 `scope.md` 當合約 |
-| 「自主」agent 做到離題 | 加分項必須接回你的原始需求、有評分、有門檻 |
-| agent 直接 push main、裝套件、改 CI | 被 PreToolUse hook 硬擋，不是靠提示詞 |
-| 早上面對 2,000 行 diff | 一個項目一個 commit；要的合併，不要的 `git revert` |
+`/sleep` 把那個停頓刪掉。你睡覺的時間，變成一場有防線、有時限的衝刺，結束時每個點子一個乾淨的 commit——好的留下，不要的 `git revert`。
 
 ## 運作方式
 
@@ -247,7 +254,7 @@ Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 
 - 防線是 pattern 黑名單，為了不誤殺正常指令偏保守；有心的模型找得到繞法。真正的安全網是分支隔離＋受保護的 `main`。
 - 收工報告的格式是 skill 指示；context 半夜被壓縮時可能走樣，以 `result.md` 為準。
-- 尚未大規模實戰。第一次跑請盯前幾回合。
+- 目前實戰兩晚（見上方戰績）。你自己的第一次，還是盯一下前幾回合。
 
 ## 貢獻
 

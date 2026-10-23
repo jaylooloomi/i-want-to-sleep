@@ -1,19 +1,34 @@
-<h1 align="center">i-want-to-sleep</h1>
+<h1 align="center">i-want-to-sleep 😴</h1>
 
 <p align="center">
-  <b>Say "I'm going to sleep". Wake up to finished work, a tested branch, and a report.</b><br>
-  A Claude Code plugin that takes over your session for N hours.
+  <b>The Bay Area's most unhinged workflow. Now yours.</b><br>
+  Type <code>/sleep 8</code>. Go to bed. Wake up to shipped features, green tests, and a branch waiting for your merge.
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT"></a>
   <img src="https://img.shields.io/badge/version-0.5.1-informational" alt="version">
   <img src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.139-orange" alt="Claude Code ≥ 2.1.139">
-  <img src="https://img.shields.io/badge/harness-Claude%20Code%20only-lightgrey" alt="Claude Code only">
   <a href="README.zh-TW.md"><img src="https://img.shields.io/badge/lang-繁體中文-green" alt="繁體中文"></a>
 </p>
 
 <p align="center"><img src="docs/hero-en-v2.png" alt="Before: a sleepy octopus at a laptop. /sleep 8. After: the same octopus in a hard hat, eight tentacles holding a wrench, keyboard, coffee, a green tests-passed badge, a git branch, a magnifier, a notebook, and typing — the terminal reads tests passed." width="900"></p>
+
+## Last night's receipts
+
+Two real projects. Two nights. Nothing staged.
+
+| | 🎮 A Godot party game | 📈 A Taiwan stock-market heatmap |
+|---|---|---|
+| Features shipped | **7** | **25** |
+| Bugs fixed | **7** — 3 were the test harness lying about passing | 5 rounds of independent code review, all findings fixed |
+| Tests | 652 → **744**, plus a new fuzz gate | pytest **128** ✅ · node **27** ✅ |
+| Speed-ups | — | date switch **7–23 s → 0.65 s** |
+| Knew when to stop | done **2.5 h early** — nothing left above the bar | done **5.5 h early** — two rounds of "nothing worth doing" |
+| Knew what *not* to do | measured a 65 % draw rate and **left it for the human** — it changes who wins | flagged a third-party data source for **your** sign-off |
+| Next morning | reviewed, merged | **all 25 reviewed and merged** |
+
+It even filed bug reports against **its own guard rails** — five false positives — and never once tried to bypass them. (Fixed in 0.5.1.)
 
 ## Install
 
@@ -141,17 +156,9 @@ The first number is the duration in hours. Anything after it is passed to the sk
 
 ## Why
 
-You stop working at midnight with a half-finished feature. The model could keep going — it has the context, it can run the tests — but every turn ends with "anything else?" and nobody is there to say yes.
+Every night you close the laptop on a half-finished feature. The model has the context. It can run the tests. It just stops — every turn ends with "anything else?" and you're asleep.
 
-This plugin removes that stop. It turns the open session into a bounded, guarded autonomous run:
-
-| Without | With |
-|---|---|
-| Work stops when you do | Work continues for the hours you specify |
-| Context is lost overnight | The conversation is compressed into `scope.md` and used as the contract |
-| "Autonomous" agents wander off-scope | Bonus work must trace back to your original requirement, scored, with a minimum bar |
-| Agents push to main / install deps / touch CI | Hard-blocked by PreToolUse hooks, not by prompt text |
-| You review a 2,000-line diff | One commit per item; merge the good ones, `git revert` the rest |
+`/sleep` deletes that stop. Your idle hours become a guarded, deadline-bound sprint that ends with one clean commit per idea — keep the winners, `git revert` the rest.
 
 ## How it works
 
@@ -246,7 +253,7 @@ Yes. `/sleep 2` is a two-hour handover. The name is a joke; the deadline is not.
 
 - Guards are pattern-based blocklists tuned to avoid blocking normal commands; a determined model can find a way around them. Branch isolation plus a protected `main` is the real safety net.
 - The wrap-up report format is a skill instruction; if the context is compacted mid-run, the report may deviate. `result.md` is the source of truth.
-- Not yet battle-tested at scale. Watch the first few turns of your first run.
+- Two real nights so far (above). Watch the first few turns of your own first run.
 
 ## Contributing
 
