@@ -35,8 +35,9 @@ It also reported five false positives in **its own guard rails** — and never a
 
 Three steps. Follow them in order.
 
-### Step 1: copy this block and paste it into Claude Code
+### Step 1: copy the block for your agent and paste it in
 
+**Claude Code**
 ```
 1. claude plugin marketplace add jaylooloomi/i-want-to-sleep
 2. claude plugin install i-want-to-sleep@jaylooloomi --scope user
@@ -45,43 +46,48 @@ Three steps. Follow them in order.
 5. Report done
 ```
 
-### Step 2: start a new session in Bypass permissions
-
-**Desktop app (Code tab)**
-1. Bottom-left Settings → Claude Code → turn on "Allow bypass permissions mode" (once)
-2. Start a new session; in the mode selector at the bottom pick **Bypass permissions** (Auto mode also works)
-
-**Terminal**
-```bash
-claude --dangerously-skip-permissions
-```
-
-### Step 3: in a session that already has work in progress, type
-
-```
-/i-want-to-sleep:sleep 8
-```
-
-Come back in 8 hours and read the report.
-
-<details>
-<summary><b>Using OpenAI Codex instead?</b></summary>
-
-Paste this into Codex:
-
+**OpenAI Codex**
 ```
 1. codex plugin marketplace add jaylooloomi/i-want-to-sleep
 2. codex plugin add i-want-to-sleep@jaylooloomi
 3. Report done
 ```
 
-Then:
+### Step 2: start a new session that skips approval prompts
 
-1. Start a **new** Codex session and run `/hooks` — trust the i-want-to-sleep hooks. **Skip this and nothing runs**: Codex does not execute plugin hooks until you trust them.
-2. Run in a mode that doesn't stop for approvals.
-3. Say "I'm going to sleep, take over for 8 hours" (there is no `/sleep` command in Codex; the skill triggers on the sentence).
+**Claude Code desktop app (Code tab)**
+1. Bottom-left Settings → Claude Code → turn on "Allow bypass permissions mode" (once)
+2. Start a new session; in the mode selector at the bottom pick **Bypass permissions** (Auto mode also works)
 
-What differs on Codex: the small-model evidence-check hook is skipped (Codex ignores prompt-type hooks), and the scope-reviewer / scorer / reporter subagents fall back to Codex's own agents or a separate pass. Guards and the Stop-hook loop work the same. Requires Codex CLI ≥ 0.122.
+**Claude Code terminal**
+```bash
+claude --dangerously-skip-permissions
+```
+
+**OpenAI Codex**
+```bash
+codex --yolo
+```
+Then run `/hooks` and trust the i-want-to-sleep hooks (once). **Skip this and nothing runs**: Codex does not execute plugin hooks until you trust them.
+
+### Step 3: in a session that already has work in progress
+
+**Claude Code**
+```
+/i-want-to-sleep:sleep 8
+```
+
+**OpenAI Codex** (no `/sleep` command — just say it)
+```
+I'm going to sleep, take over for 8 hours
+```
+
+Come back in 8 hours and read the report.
+
+<details>
+<summary><b>What differs on Codex</b></summary>
+
+The small-model evidence-check hook is skipped (Codex ignores prompt-type hooks), and the scope-reviewer / scorer / reporter subagents fall back to Codex's own agents or a separate pass. Guards and the Stop-hook loop work the same. `--yolo` also disables Codex's sandbox; `--full-auto` keeps the sandbox but may pause for approval when it needs the network (e.g. to push). Requires Codex CLI ≥ 0.122.
 </details>
 
 <details>

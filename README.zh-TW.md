@@ -35,8 +35,9 @@
 
 照著做，三步。
 
-### 第 1 步：複製下面整段，貼給 Claude Code
+### 第 1 步：複製你用的那一段，貼給 agent
 
+**Claude Code**
 ```
 1. claude plugin marketplace add jaylooloomi/i-want-to-sleep
 2. claude plugin install i-want-to-sleep@jaylooloomi --scope user
@@ -45,43 +46,48 @@
 5. 回報完成
 ```
 
-### 第 2 步：開新 session，選 Bypass permissions
-
-**桌面版（Code 分頁）**
-1. 左下角 Settings → Claude Code → 開啟「Allow bypass permissions mode」（一次就好）
-2. 開新 session，底部模式選擇器選 **Bypass permissions**（Auto mode 也可以）
-
-**終端機**
-```bash
-claude --dangerously-skip-permissions
-```
-
-### 第 3 步：在有工作進行中的 session 裡輸入
-
-```
-/i-want-to-sleep:sleep 8
-```
-
-8 小時後回來看報告。
-
-<details>
-<summary><b>用 OpenAI Codex？</b></summary>
-
-貼給 Codex：
-
+**OpenAI Codex**
 ```
 1. codex plugin marketplace add jaylooloomi/i-want-to-sleep
 2. codex plugin add i-want-to-sleep@jaylooloomi
 3. 回報完成
 ```
 
-接著：
+### 第 2 步：開新 session，跳過權限確認
 
-1. 開**新的** Codex session，輸入 `/hooks`，信任 i-want-to-sleep 的 hook。**沒做這步什麼都不會跑**：Codex 不會執行未經信任的 plugin hook。
-2. 用不需逐步核准的模式執行。
-3. 說「我要睡覺了，接手 8 小時」（Codex 沒有 `/sleep` 指令，skill 靠這句話觸發）。
+**Claude Code 桌面版（Code 分頁）**
+1. 左下角 Settings → Claude Code → 開啟「Allow bypass permissions mode」（一次就好）
+2. 開新 session，底部模式選擇器選 **Bypass permissions**（Auto mode 也可以）
 
-Codex 上的差異：小模型證據檢查 hook 不會跑（Codex 跳過 prompt 型 hook）；scope-reviewer / scorer / reporter 子代理改用 Codex 自己的 agent 或獨立步驟代替。防線和 Stop hook 迴圈完全一樣。需要 Codex CLI 0.122 以上。
+**Claude Code 終端機**
+```bash
+claude --dangerously-skip-permissions
+```
+
+**OpenAI Codex**
+```bash
+codex --yolo
+```
+進去後先輸入 `/hooks`，信任 i-want-to-sleep 的 hook（一次就好）。**沒做這步什麼都不會跑**：Codex 不會執行未經信任的 plugin hook。
+
+### 第 3 步：在有工作進行中的 session 裡
+
+**Claude Code**
+```
+/i-want-to-sleep:sleep 8
+```
+
+**OpenAI Codex**（沒有 `/sleep` 指令，用說的）
+```
+我要睡覺了，接手 8 小時
+```
+
+8 小時後回來看報告。
+
+<details>
+<summary><b>Codex 上有什麼不同</b></summary>
+
+小模型證據檢查 hook 不會跑（Codex 跳過 prompt 型 hook）；scope-reviewer / scorer / reporter 子代理改用 Codex 自己的 agent 或獨立步驟代替。防線和 Stop hook 迴圈完全一樣。`--yolo` 也關掉 Codex 的 sandbox；想保留 sandbox 可改用 `--full-auto`，但它在需要網路（例如 push）時可能停下來等你核准。需要 Codex CLI 0.122 以上。
 </details>
 
 <details>
