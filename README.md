@@ -101,8 +101,31 @@ The first number is the duration in hours. Anything after it is passed to the sk
 
 ## Install
 
+<details open>
+<summary><b>Copy-paste prompt for Claude Code (global install)</b></summary>
+
+Paste this into any Claude Code session. It installs at user scope — every project on this machine — and ends with the two steps only you can do.
+
+```
+Install the Claude Code plugin https://github.com/jaylooloomi/i-want-to-sleep globally (user scope). Run exactly:
+
+claude plugin marketplace add jaylooloomi/i-want-to-sleep
+claude plugin install i-want-to-sleep@jaylooloomi --scope user
+claude plugin list
+
+Confirm the list shows i-want-to-sleep@jaylooloomi with Status: enabled and tell me the version. Do not read the whole repo first unless you need to; the hooks are deny-only and arm only while .agent-pipeline/ACTIVE exists.
+
+Then stop. Do NOT try to set environment variables or relaunch with --dangerously-skip-permissions — you cannot from inside a session. Instead print these two steps for me to run in my own shell:
+  1. echo 'export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0' >> ~/.zshrc  (or ~/.bashrc), then open a new terminal
+  2. start Claude Code with: claude --dangerously-skip-permissions
+and remind me that the usage is /i-want-to-sleep:sleep 8 from a session that already has work in progress.
+```
+
+Want it in one repository only? Replace `--scope user` with `--scope local`.
+</details>
+
 <details>
-<summary><b>Ask your agent</b></summary>
+<summary><b>Ask your agent (short form)</b></summary>
 
 Paste into Claude Code:
 

@@ -102,8 +102,31 @@ Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 
 ## 安裝
 
+<details open>
+<summary><b>複製貼上給 Claude Code 的安裝提示詞（全域安裝）</b></summary>
+
+貼進任何一個 Claude Code session。裝在 user scope——這台機器所有專案——結尾會列出只有你能做的兩步。
+
+```
+幫我全域安裝（user scope）這個 Claude Code plugin：https://github.com/jaylooloomi/i-want-to-sleep。照這三行執行：
+
+claude plugin marketplace add jaylooloomi/i-want-to-sleep
+claude plugin install i-want-to-sleep@jaylooloomi --scope user
+claude plugin list
+
+確認清單裡 i-want-to-sleep@jaylooloomi 的 Status 是 enabled，並告訴我版本號。除非必要，不用先讀整個 repo；它的 hook 全部是 deny-only，而且只在 .agent-pipeline/ACTIVE 存在時才生效。
+
+然後就停。不要嘗試設環境變數，也不要嘗試用 --dangerously-skip-permissions 重啟——你在 session 裡做不到。改成把下面兩步印給我，我自己在 shell 跑：
+  1. echo 'export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0' >> ~/.zshrc（或 ~/.bashrc），然後開新的終端機
+  2. 用 claude --dangerously-skip-permissions 啟動 Claude Code
+並提醒我用法是：在已經有工作進行中的 session 裡下 /i-want-to-sleep:sleep 8。
+```
+
+只想裝在單一 repo？把 `--scope user` 換成 `--scope local`。
+</details>
+
 <details>
-<summary><b>對 agent 說</b></summary>
+<summary><b>對 agent 說（短版）</b></summary>
 
 在 Claude Code 裡貼：
 
