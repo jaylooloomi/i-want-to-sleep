@@ -15,90 +15,6 @@
 
 <p align="center"><img src="docs/hero-en-v2.png" alt="Before: a sleepy octopus at a laptop. /sleep 8. After: the same octopus in a hard hat, eight tentacles holding a wrench, keyboard, coffee, a green tests-passed badge, a git branch, a magnifier, a notebook, and typing — the terminal reads tests passed." width="900"></p>
 
-## Quick start
-
-```bash
-claude plugin marketplace add jaylooloomi/i-want-to-sleep
-claude plugin install i-want-to-sleep@jaylooloomi
-export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0
-claude --dangerously-skip-permissions
-```
-
-Then, in a session that already has work in progress:
-
-```
-/i-want-to-sleep:sleep 8
-```
-
-Come back in 8 hours. The last message in the session is a wrap-up report; the branch `night-shift/<date>` is pushed and ready for a merge request.
-
-> **Scope.** `claude plugin install` defaults to **user scope**: the plugin is active in every project on this machine, and the evidence-check Stop hook costs one small-model call per turn end in every session. To limit it to one repository, add `--scope local` (just you) or `--scope project` (everyone on the repo). Same flag applies to every install command below.
-
-## Why
-
-You stop working at midnight with a half-finished feature. The model could keep going — it has the context, it can run the tests — but every turn ends with "anything else?" and nobody is there to say yes.
-
-This plugin removes that stop. It turns the open session into a bounded, guarded autonomous run:
-
-| Without | With |
-|---|---|
-| Work stops when you do | Work continues for the hours you specify |
-| Context is lost overnight | The conversation is compressed into `scope.md` and used as the contract |
-| "Autonomous" agents wander off-scope | Bonus work must trace back to your original requirement, scored, with a minimum bar |
-| Agents push to main / install deps / touch CI | Hard-blocked by PreToolUse hooks, not by prompt text |
-| You review a 2,000-line diff | One commit per item; merge the good ones, `git revert` the rest |
-
-## How it works
-
-```
-/sleep 8
-   │
-   ▼
-Step 0  record BASE = current branch; branch night-shift/<date> from it; ACTIVE flag; DEADLINE = now + 8h
-Step 1  read the whole conversation → scope.md (requirement / done / unfinished / rejected)
-Step 2  finish every unfinished item — one commit each, build + unit tests, 3 retries
-Step 3  research competitors & top projects for ideas that serve the original requirement
-Step 4  score (Impact × Urgency) / (Effort × Blast); skip anything < 2
-Step 5  implement the winner with tests — one isolated commit (bonus-01, bonus-02, …)
-   ▲                         │
-   └── back to Step 4 ◄──────┘   until the deadline
-Step 6  push branch, write result.md, post the wrap-up report in chat
-```
-
-Three mechanisms make this run unattended — and keep the model from grading its own homework:
-
-- **Stop hook** — every time Claude tries to end its turn while `.agent-pipeline/ACTIVE` exists, the hook sends it back with the next instruction. At the deadline it asks for wrap-up once, then lets go.
-- **PreToolUse hooks** — deterministic shell scripts (no model involved) that block `git push` to anything but `night-shift/*`, `merge` / `rebase` / `reset --hard` / `--force`, `rm -rf`, package installs, and edits to CI config, migrations, settings files and dependency manifests.
-- **A small-model review layer** — three places where a separate, cheap model (Haiku) checks the main model instead of letting it self-certify, the same idea behind Claude Code's `/goal` evaluator:
-
-  | Where | Who | What it does |
-  |---|---|---|
-  | after `scope.md` is written | `scope-reviewer` subagent | re-reads the conversation and reports where the contract misreads the user; uncertain items become `[存疑]` and are skipped |
-  | before each bonus item | `scorer` subagent | scores the candidates; the main model must adopt the result and may only move *down* the list |
-  | every turn end | prompt-type Stop hook | checks that the turn used tools, printed `git status`, and has command output behind any "tests passed" claim; sends the turn back naming the one missing piece of evidence |
-
-The deterministic hooks are inert when `ACTIVE` is absent. The evidence-check hook short-circuits to "ok" when no night shift is active, but it does cost one small-model call per turn end in every session.
-
-## Usage
-
-Before the first run, check which branch you are on. The night-shift branch forks from **your current HEAD**, the morning report diffs against that branch, and the merge request should target it — not `main`. If you have an unrelated long-running branch checked out, switch or clean up first.
-
-```
-/i-want-to-sleep:sleep               # 8 hours (default)
-/i-want-to-sleep:sleep 2             # 2 hours — works in the daytime too
-/i-want-to-sleep:sleep 8 use the SQLite version as the baseline
-/i-want-to-sleep:sleep 1 wrap-up only
-```
-
-The first number is the duration in hours. Anything after it is passed to the skill as instructions. Saying "I'm going to sleep" or "take over for 3 hours" in plain language also triggers it.
-
-### In the morning
-
-1. Read the wrap-up report in the session (what was done, sources, test status, files, decisions needed). Details in `.agent-pipeline/result.md`.
-2. Open a merge request from `night-shift/<date>` **into the branch you started from** (recorded in `.agent-pipeline/BASE`). Each bonus item is an independent commit.
-3. Wrong direction? Say so in the same session.
-4. Delete `.agent-pipeline/` after merging.
-
 ## Install
 
 <details open>
@@ -123,6 +39,25 @@ and remind me that the usage is /i-want-to-sleep:sleep 8 from a session that alr
 
 Want it in one repository only? Replace `--scope user` with `--scope local`.
 </details>
+
+**Or the shell commands yourself** (user scope by default; add `--scope local` for one repo):
+
+```bash
+claude plugin marketplace add jaylooloomi/i-want-to-sleep
+claude plugin install i-want-to-sleep@jaylooloomi
+export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0
+claude --dangerously-skip-permissions
+```
+
+Then, in a session that already has work in progress:
+
+```
+/i-want-to-sleep:sleep 8
+```
+
+Come back in 8 hours. The last message in the session is a wrap-up report; the branch `night-shift/<date>` is pushed and ready for a merge request.
+
+> **Scope.** `claude plugin install` defaults to **user scope**: the plugin is active in every project on this machine, and the evidence-check Stop hook costs one small-model call per turn end in every session. To limit it to one repository, add `--scope local` (just you) or `--scope project` (everyone on the repo). Same flag applies to every install command below.
 
 <details>
 <summary><b>Ask your agent (short form)</b></summary>
@@ -195,6 +130,71 @@ The plugin cannot set these, and neither can an agent inside a session: environm
 | Machine | keep awake; on a subscription plan, enable "continue when usage limit resets" | — | hitting the usage limit pauses the session |
 
 Put the two exports in `~/.zshrc` / `~/.bashrc`. `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0` is safe globally: this plugin's Stop hook only blocks while `ACTIVE` exists.
+
+## Usage
+
+Before the first run, check which branch you are on. The night-shift branch forks from **your current HEAD**, the morning report diffs against that branch, and the merge request should target it — not `main`. If you have an unrelated long-running branch checked out, switch or clean up first.
+
+```
+/i-want-to-sleep:sleep               # 8 hours (default)
+/i-want-to-sleep:sleep 2             # 2 hours — works in the daytime too
+/i-want-to-sleep:sleep 8 use the SQLite version as the baseline
+/i-want-to-sleep:sleep 1 wrap-up only
+```
+
+The first number is the duration in hours. Anything after it is passed to the skill as instructions. Saying "I'm going to sleep" or "take over for 3 hours" in plain language also triggers it.
+
+### In the morning
+
+1. Read the wrap-up report in the session (what was done, sources, test status, files, decisions needed). Details in `.agent-pipeline/result.md`.
+2. Open a merge request from `night-shift/<date>` **into the branch you started from** (recorded in `.agent-pipeline/BASE`). Each bonus item is an independent commit.
+3. Wrong direction? Say so in the same session.
+4. Delete `.agent-pipeline/` after merging.
+
+## Why
+
+You stop working at midnight with a half-finished feature. The model could keep going — it has the context, it can run the tests — but every turn ends with "anything else?" and nobody is there to say yes.
+
+This plugin removes that stop. It turns the open session into a bounded, guarded autonomous run:
+
+| Without | With |
+|---|---|
+| Work stops when you do | Work continues for the hours you specify |
+| Context is lost overnight | The conversation is compressed into `scope.md` and used as the contract |
+| "Autonomous" agents wander off-scope | Bonus work must trace back to your original requirement, scored, with a minimum bar |
+| Agents push to main / install deps / touch CI | Hard-blocked by PreToolUse hooks, not by prompt text |
+| You review a 2,000-line diff | One commit per item; merge the good ones, `git revert` the rest |
+
+## How it works
+
+```
+/sleep 8
+   │
+   ▼
+Step 0  record BASE = current branch; branch night-shift/<date> from it; ACTIVE flag; DEADLINE = now + 8h
+Step 1  read the whole conversation → scope.md (requirement / done / unfinished / rejected)
+Step 2  finish every unfinished item — one commit each, build + unit tests, 3 retries
+Step 3  research competitors & top projects for ideas that serve the original requirement
+Step 4  score (Impact × Urgency) / (Effort × Blast); skip anything < 2
+Step 5  implement the winner with tests — one isolated commit (bonus-01, bonus-02, …)
+   ▲                         │
+   └── back to Step 4 ◄──────┘   until the deadline
+Step 6  push branch, write result.md, post the wrap-up report in chat
+```
+
+Three mechanisms make this run unattended — and keep the model from grading its own homework:
+
+- **Stop hook** — every time Claude tries to end its turn while `.agent-pipeline/ACTIVE` exists, the hook sends it back with the next instruction. At the deadline it asks for wrap-up once, then lets go.
+- **PreToolUse hooks** — deterministic shell scripts (no model involved) that block `git push` to anything but `night-shift/*`, `merge` / `rebase` / `reset --hard` / `--force`, `rm -rf`, package installs, and edits to CI config, migrations, settings files and dependency manifests.
+- **A small-model review layer** — three places where a separate, cheap model (Haiku) checks the main model instead of letting it self-certify, the same idea behind Claude Code's `/goal` evaluator:
+
+  | Where | Who | What it does |
+  |---|---|---|
+  | after `scope.md` is written | `scope-reviewer` subagent | re-reads the conversation and reports where the contract misreads the user; uncertain items become `[存疑]` and are skipped |
+  | before each bonus item | `scorer` subagent | scores the candidates; the main model must adopt the result and may only move *down* the list |
+  | every turn end | prompt-type Stop hook | checks that the turn used tools, printed `git status`, and has command output behind any "tests passed" claim; sends the turn back naming the one missing piece of evidence |
+
+The deterministic hooks are inert when `ACTIVE` is absent. The evidence-check hook short-circuits to "ok" when no night shift is active, but it does cost one small-model call per turn end in every session.
 
 ## Compatibility
 

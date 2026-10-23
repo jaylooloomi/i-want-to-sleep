@@ -15,91 +15,6 @@
 
 <p align="center"><img src="docs/hero-zh.png" alt="左：白天，想睡的章魚坐在筆電前。/sleep 8。右：夜班，同一隻章魚戴安全帽，八隻觸手拿著扳手、鍵盤、咖啡、測試通過徽章、git 分支、放大鏡、筆記本並打字，終端機顯示 tests passed。" width="900"></p>
 
-## 快速開始
-
-```bash
-claude plugin marketplace add jaylooloomi/i-want-to-sleep
-claude plugin install i-want-to-sleep@jaylooloomi
-export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0
-claude --dangerously-skip-permissions
-```
-
-然後在一個已經有工作進行中的 session 裡：
-
-```
-/i-want-to-sleep:sleep 8
-```
-
-8 小時後回來。session 最後一則訊息是收工報告；分支 `night-shift/<date>` 已 push，可直接開 MR。
-
-> **安裝範圍。** `claude plugin install` 預設是 **user scope**：這台機器上每個專案都啟用，而且證據檢查 Stop hook 在每個 session 每回合都會多一次小模型呼叫。只想裝在單一 repo，加 `--scope local`（只有你）或 `--scope project`（repo 所有協作者）。下面每種安裝方式都可加同一個參數。
-
-## 為什麼
-
-半夜十二點你停下來，功能做到一半。模型其實可以繼續——context 它有、測試它會跑——但每一回合結尾都是「還有什麼需要嗎？」，沒人在那裡說「有」。
-
-這個 plugin 把那個停頓拿掉，把開著的 session 變成有時限、有防線的自主執行：
-
-| 沒有它 | 有它 |
-|---|---|
-| 你停，工作就停 | 工作照你指定的小時數繼續 |
-| 隔夜 context 不見 | 對話被壓成 `scope.md` 當合約 |
-| 「自主」agent 做到離題 | 加分項必須接回你的原始需求、有評分、有門檻 |
-| agent 直接 push main、裝套件、改 CI | 被 PreToolUse hook 硬擋，不是靠提示詞 |
-| 早上面對 2,000 行 diff | 一個項目一個 commit；要的合併，不要的 `git revert` |
-
-## 運作方式
-
-```
-/sleep 8
-   │
-   ▼
-Step 0  記錄 BASE = 當前分支；從它開 night-shift/<date>；ACTIVE 旗標；DEADLINE = 現在 + 8h
-Step 1  讀整段對話 → scope.md（原始需求 / 已完成 / 未完成 / 已否決）
-Step 2  做完每個未完成項目 — 各自 commit，build + 單元測試，重試 3 次
-Step 3  調研競品與頂尖專案，找能服務原始需求的點子
-Step 4  評分 (Impact × Urgency) / (Effort × Blast)；低於 2 的跳過
-Step 5  實作勝出者並寫測試 — 獨立 commit（bonus-01、bonus-02 …）
-   ▲                         │
-   └── 回到 Step 4 ◄─────────┘   直到時限
-Step 6  push 分支、寫 result.md、在對話裡貼收工報告
-```
-
-讓它無人看管也能跑、而且不讓模型自己批改自己作業的三個機制：
-
-- **Stop hook** — 只要 `.agent-pipeline/ACTIVE` 存在，Claude 每次想結束回合都會被推回去並拿到下一步指示。時限到了要求收工一次，之後放行。
-- **PreToolUse hooks** — 確定性的 shell script（不經模型），擋住 push 到 `night-shift/*` 以外的分支、`merge` / `rebase` / `reset --hard` / `--force`、`rm -rf`、安裝套件、修改 CI 設定／migration／設定檔／依賴清單。
-
-- **小模型審查層** — 三個位置由另一個便宜的模型（Haiku）檢查主模型，而不是讓它自我認證；這跟 Claude Code `/goal` 用小模型當評估者是同一個想法：
-
-  | 位置 | 誰 | 做什麼 |
-  |---|---|---|
-  | scope.md 寫完後 | `scope-reviewer` 子代理 | 重讀對話，指出合約哪裡誤讀使用者；它標不確定的項目改成 `[存疑]` 跳過 |
-  | 每個加分項之前 | `scorer` 子代理 | 給候選打分；主模型必須採用結果，只能往下不能往上 |
-  | 每回合結束 | prompt 型 Stop hook | 檢查這回合有沒有用工具、有沒有印 `git status`、聲稱測試通過時有沒有指令輸出；缺哪一樣就指名退回 |
-
-確定性 hook 在 `ACTIVE` 不存在時不動作。證據檢查 hook 在沒有夜班時會直接回 ok，但每個 session 每回合結束仍會多一次小模型呼叫。
-
-## 使用
-
-第一次跑之前先看你在哪條分支。夜班分支是從**你當下的 HEAD** 開出去的，早上的報告以那條分支為比較基準，MR 也該對它開——不是 main。如果你 checkout 在一條不相干的長期分支上，先切換或收掉。
-
-```
-/i-want-to-sleep:sleep               # 8 小時（預設）
-/i-want-to-sleep:sleep 2             # 2 小時，白天也能用
-/i-want-to-sleep:sleep 8 以「用 SQLite 版本為準」
-/i-want-to-sleep:sleep 1 只收尾
-```
-
-第一個數字是時數，後面的文字會當指示交給 skill。直接說「我要睡覺了」「幫我做 3 小時」也會觸發。
-
-### 早上
-
-1. 看 session 裡的收工報告（做了什麼、參考來源、測試狀態、檔案、需要你決定的事）。細節在 `.agent-pipeline/result.md`。
-2. 從 `night-shift/<date>` 開 MR，**目標是你出發的那條分支**（記在 `.agent-pipeline/BASE`）。每個加分項是獨立 commit。
-3. 方向不對？在同一個 session 直接說。
-4. 合併後刪 `.agent-pipeline/`。
-
 ## 安裝
 
 <details open>
@@ -124,6 +39,25 @@ claude plugin list
 
 只想裝在單一 repo？把 `--scope user` 換成 `--scope local`。
 </details>
+
+**或自己在 shell 跑**（預設 user scope；只裝單一 repo 加 `--scope local`）：
+
+```bash
+claude plugin marketplace add jaylooloomi/i-want-to-sleep
+claude plugin install i-want-to-sleep@jaylooloomi
+export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0
+claude --dangerously-skip-permissions
+```
+
+然後在一個已經有工作進行中的 session 裡：
+
+```
+/i-want-to-sleep:sleep 8
+```
+
+8 小時後回來。session 最後一則訊息是收工報告；分支 `night-shift/<date>` 已 push，可直接開 MR。
+
+> **安裝範圍。** `claude plugin install` 預設是 **user scope**：這台機器上每個專案都啟用，而且證據檢查 Stop hook 在每個 session 每回合都會多一次小模型呼叫。只想裝在單一 repo，加 `--scope local`（只有你）或 `--scope project`（repo 所有協作者）。下面每種安裝方式都可加同一個參數。
 
 <details>
 <summary><b>對 agent 說（短版）</b></summary>
@@ -196,6 +130,72 @@ claude plugin marketplace remove jaylooloomi
 | 機器 | 不睡眠；訂閱方案開「額度重置後繼續」 | — | 撞用量上限會暫停 |
 
 兩個 export 放進 `~/.zshrc` / `~/.bashrc`。`CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0` 放全域是安全的：這個 plugin 的 Stop hook 只在 `ACTIVE` 存在時阻擋。
+
+## 使用
+
+第一次跑之前先看你在哪條分支。夜班分支是從**你當下的 HEAD** 開出去的，早上的報告以那條分支為比較基準，MR 也該對它開——不是 main。如果你 checkout 在一條不相干的長期分支上，先切換或收掉。
+
+```
+/i-want-to-sleep:sleep               # 8 小時（預設）
+/i-want-to-sleep:sleep 2             # 2 小時，白天也能用
+/i-want-to-sleep:sleep 8 以「用 SQLite 版本為準」
+/i-want-to-sleep:sleep 1 只收尾
+```
+
+第一個數字是時數，後面的文字會當指示交給 skill。直接說「我要睡覺了」「幫我做 3 小時」也會觸發。
+
+### 早上
+
+1. 看 session 裡的收工報告（做了什麼、參考來源、測試狀態、檔案、需要你決定的事）。細節在 `.agent-pipeline/result.md`。
+2. 從 `night-shift/<date>` 開 MR，**目標是你出發的那條分支**（記在 `.agent-pipeline/BASE`）。每個加分項是獨立 commit。
+3. 方向不對？在同一個 session 直接說。
+4. 合併後刪 `.agent-pipeline/`。
+
+## 為什麼
+
+半夜十二點你停下來，功能做到一半。模型其實可以繼續——context 它有、測試它會跑——但每一回合結尾都是「還有什麼需要嗎？」，沒人在那裡說「有」。
+
+這個 plugin 把那個停頓拿掉，把開著的 session 變成有時限、有防線的自主執行：
+
+| 沒有它 | 有它 |
+|---|---|
+| 你停，工作就停 | 工作照你指定的小時數繼續 |
+| 隔夜 context 不見 | 對話被壓成 `scope.md` 當合約 |
+| 「自主」agent 做到離題 | 加分項必須接回你的原始需求、有評分、有門檻 |
+| agent 直接 push main、裝套件、改 CI | 被 PreToolUse hook 硬擋，不是靠提示詞 |
+| 早上面對 2,000 行 diff | 一個項目一個 commit；要的合併，不要的 `git revert` |
+
+## 運作方式
+
+```
+/sleep 8
+   │
+   ▼
+Step 0  記錄 BASE = 當前分支；從它開 night-shift/<date>；ACTIVE 旗標；DEADLINE = 現在 + 8h
+Step 1  讀整段對話 → scope.md（原始需求 / 已完成 / 未完成 / 已否決）
+Step 2  做完每個未完成項目 — 各自 commit，build + 單元測試，重試 3 次
+Step 3  調研競品與頂尖專案，找能服務原始需求的點子
+Step 4  評分 (Impact × Urgency) / (Effort × Blast)；低於 2 的跳過
+Step 5  實作勝出者並寫測試 — 獨立 commit（bonus-01、bonus-02 …）
+   ▲                         │
+   └── 回到 Step 4 ◄─────────┘   直到時限
+Step 6  push 分支、寫 result.md、在對話裡貼收工報告
+```
+
+讓它無人看管也能跑、而且不讓模型自己批改自己作業的三個機制：
+
+- **Stop hook** — 只要 `.agent-pipeline/ACTIVE` 存在，Claude 每次想結束回合都會被推回去並拿到下一步指示。時限到了要求收工一次，之後放行。
+- **PreToolUse hooks** — 確定性的 shell script（不經模型），擋住 push 到 `night-shift/*` 以外的分支、`merge` / `rebase` / `reset --hard` / `--force`、`rm -rf`、安裝套件、修改 CI 設定／migration／設定檔／依賴清單。
+
+- **小模型審查層** — 三個位置由另一個便宜的模型（Haiku）檢查主模型，而不是讓它自我認證；這跟 Claude Code `/goal` 用小模型當評估者是同一個想法：
+
+  | 位置 | 誰 | 做什麼 |
+  |---|---|---|
+  | scope.md 寫完後 | `scope-reviewer` 子代理 | 重讀對話，指出合約哪裡誤讀使用者；它標不確定的項目改成 `[存疑]` 跳過 |
+  | 每個加分項之前 | `scorer` 子代理 | 給候選打分；主模型必須採用結果，只能往下不能往上 |
+  | 每回合結束 | prompt 型 Stop hook | 檢查這回合有沒有用工具、有沒有印 `git status`、聲稱測試通過時有沒有指令輸出；缺哪一樣就指名退回 |
+
+確定性 hook 在 `ACTIVE` 不存在時不動作。證據檢查 hook 在沒有夜班時會直接回 ok，但每個 session 每回合結束仍會多一次小模型呼叫。
 
 ## 相容性
 
