@@ -131,6 +131,9 @@ The first number is the duration in hours. Anything after it is passed to the sk
 
 ### In the morning
 
+<p align="center"><img src="docs/morning-en-v1.png" alt="Good morning, boss. A man with coffee reads 'Night shift complete' on his phone while the hard-hat octopus stands beside a dashboard: 2 completed, 0 failed, 6 bonus features, awaiting your review." width="900"></p>
+
+
 1. Read the wrap-up report in the session (what was done, sources, test status, files, decisions needed). Details in `.agent-pipeline/result.md`.
 2. Open a merge request from `night-shift/<date>` **into the branch you started from** (recorded in `.agent-pipeline/BASE`). Each bonus item is an independent commit.
 3. Wrong direction? Say so in the same session.

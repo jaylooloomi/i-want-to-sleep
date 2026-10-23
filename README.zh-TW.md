@@ -131,6 +131,9 @@ claude plugin marketplace remove jaylooloomi
 
 ### 早上
 
+<p align="center"><img src="docs/morning-zh-v1.png" alt="早安，老闆！男子端著咖啡看手機上的「夜間任務已完成」，戴安全帽的章魚站在儀表板旁：完成 2 項、失敗 0 項、額外完成 6 項、等待老闆確認。" width="900"></p>
+
+
 1. 看 session 裡的收工報告（做了什麼、參考來源、測試狀態、檔案、需要你決定的事）。細節在 `.agent-pipeline/result.md`。
 2. 從 `night-shift/<date>` 開 MR，**目標是你出發的那條分支**（記在 `.agent-pipeline/BASE`）。每個加分項是獨立 commit。
 3. 方向不對？在同一個 session 直接說。
