@@ -15,21 +15,20 @@
 
 <p align="center"><img src="docs/hero-en-v2.png" alt="Before: a sleepy octopus at a laptop. /sleep 8. After: the same octopus in a hard hat, eight tentacles holding a wrench, keyboard, coffee, a green tests-passed badge, a git branch, a magnifier, a notebook, and typing — the terminal reads tests passed." width="900"></p>
 
-## Field-tested
+## Use cases
 
-Two real projects, one night each. Numbers unedited.
-
-| | 🎮 Godot party game | 📈 Taiwan stock heatmap |
+| Situation | Command | Why it fits |
 |---|---|---|
-| **Shipped** | 7 features | 25 features |
-| **Fixed** | 7 defects, incl. 3 false passes in the test harness | 5 independent review rounds, all findings fixed |
-| **Tests** | 652 → 744, new fuzz gate | pytest 128 ✅ node 27 ✅ |
-| **Perf** | — | date switch 7–23 s → 0.65 s |
-| **Converged** | 2.5 h early, no candidate above the bar | 5.5 h early, two rounds with no qualifying candidate |
-| **Restraint** | 65 % 4-player draw rate — judged a design call, left untouched | third-party data source flagged for sign-off |
-| **Outcome** | reviewed, merged | all 25 reviewed, merged |
+| 🌙 **Overnight handover** | `/sleep 8` | You stop mid-feature with all the context loaded — it finishes the job |
+| 💳 **Subscription quota about to reset** | new session in any repo: `/sleep 3` | Unused quota vanishes at the reset. No chat needed: with an empty conversation it pulls work from the repo's TODOs, failing tests and roadmap (repo mode) |
+| 🍱 **Lunch, meetings, commute** | `/sleep 1 wrap-up only` | Short and scoped — your half-done work is tidied by the time you're back |
+| ✈️ **Travel, flights, weekends** | `/sleep 12` | Long absence, one batch to review when you return |
+| 🎯 **Night before a client demo** | `/sleep 8 use the demo flow as the baseline` | Anchors the scope on the demo, so every bonus lands where the client will look |
+| 🧪 **Hardening and hidden bugs** | `/sleep 6 focus on tests and stability` | Night one in the field: tests 652 → 744, three false passes in the harness caught |
+| ⚡ **Performance work** | `/sleep 6 focus on performance` | Night two in the field: date switch 7–23 s → 0.65 s |
+| 🔍 **Competitive gap analysis** | `/sleep 8 bonus only` | Research is built in — you wake up to a feature-gap list that already has commits |
 
-It also reported five false positives in **its own guard rails** — and never attempted a bypass. (Fixed in 0.5.1.)
+On Codex, say it instead: "take over for 3 hours, focus on performance".
 
 ## Install
 
@@ -184,20 +183,21 @@ The first number is the duration in hours. Anything after it is passed to the sk
 3. Wrong direction? Say so in the same session.
 4. Delete `.agent-pipeline/` after merging.
 
-## Use cases
+## Field-tested
 
-| Situation | Command | Why it fits |
+Two real projects, one night each. Numbers unedited.
+
+| | 🎮 Godot party game | 📈 Taiwan stock heatmap |
 |---|---|---|
-| 🌙 **Overnight handover** | `/sleep 8` | You stop mid-feature with all the context loaded — it finishes the job |
-| 💳 **Subscription quota about to reset** | new session in any repo: `/sleep 3` | Unused quota vanishes at the reset. No chat needed: with an empty conversation it pulls work from the repo's TODOs, failing tests and roadmap (repo mode) |
-| 🍱 **Lunch, meetings, commute** | `/sleep 1 wrap-up only` | Short and scoped — your half-done work is tidied by the time you're back |
-| ✈️ **Travel, flights, weekends** | `/sleep 12` | Long absence, one batch to review when you return |
-| 🎯 **Night before a client demo** | `/sleep 8 use the demo flow as the baseline` | Anchors the scope on the demo, so every bonus lands where the client will look |
-| 🧪 **Hardening and hidden bugs** | `/sleep 6 focus on tests and stability` | Night one in the field: tests 652 → 744, three false passes in the harness caught |
-| ⚡ **Performance work** | `/sleep 6 focus on performance` | Night two in the field: date switch 7–23 s → 0.65 s |
-| 🔍 **Competitive gap analysis** | `/sleep 8 bonus only` | Research is built in — you wake up to a feature-gap list that already has commits |
+| **Shipped** | 7 features | 25 features |
+| **Fixed** | 7 defects, incl. 3 false passes in the test harness | 5 independent review rounds, all findings fixed |
+| **Tests** | 652 → 744, new fuzz gate | pytest 128 ✅ node 27 ✅ |
+| **Perf** | — | date switch 7–23 s → 0.65 s |
+| **Converged** | 2.5 h early, no candidate above the bar | 5.5 h early, two rounds with no qualifying candidate |
+| **Restraint** | 65 % 4-player draw rate — judged a design call, left untouched | third-party data source flagged for sign-off |
+| **Outcome** | reviewed, merged | all 25 reviewed, merged |
 
-On Codex, say it instead: "take over for 3 hours, focus on performance".
+It also reported five false positives in **its own guard rails** — and never attempted a bypass. (Fixed in 0.5.1.)
 
 ## Why
 
