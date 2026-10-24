@@ -31,6 +31,7 @@ rm -rf .agent-pipeline && mkdir -p .agent-pipeline
 echo "$BASE" > .agent-pipeline/BASE               # 之後所有 diff / log 都以它為基底，不是 main
 touch .agent-pipeline/ACTIVE
 HOURS=<來自 /sleep 參數的數字，預設 8>
+date +%s > .agent-pipeline/START
 echo $(( $(date +%s) + HOURS * 3600 )) > .agent-pipeline/DEADLINE
 ```
 
@@ -126,6 +127,11 @@ Score = (Impact × Urgency) / (Effort × Blast)
 
 Stop hook 會在時間到或回合用完時要求收尾；收到那則指示後，或 `/sleep 只收尾` 做完後：
 
+0. 寫入時間紀錄（報告要用，不可省略）：
+   ```bash
+   python3 -c "import time;P='.agent-pipeline/';s=int(open(P+'START').read());d=int(open(P+'DEADLINE').read());e=int(time.time());open(P+'END','w').write(str(e));f=lambda t:time.strftime('%Y-%m-%d %H:%M',time.localtime(t));h=lambda x:f'{x//3600}h{x%3600//60:02d}m';r=d-e;open(P+'TIMING','w').write(f'開始 {f(s)}｜結束 {f(e)}｜實際執行 {h(e-s)}／預定 {h(d-s)}'+(f'｜提早 {h(r)} 收工' if r>60 else '')+'\n')"
+   cat .agent-pipeline/TIMING
+   ```
 1. 印出 `git log --oneline $BASE..HEAD`、`git diff $BASE --name-only`、最後一次 build/test 結果（`$BASE` 讀自 `.agent-pipeline/BASE`）。
 2. 補完 result.md（格式如下）。
 3. commit `docs(night-shift): result`。

@@ -14,6 +14,7 @@ MAX_TURNS="${NIGHT_SHIFT_MAX_TURNS:-120}"  # 回合上限（兜底）
 
 now=$(date +%s)
 # DEADLINE 由 skill Step 0 依 /sleep 參數寫入；缺少時以預設時長建立
+[ -f "$P/START" ] || echo "$now" > "$P/START"
 if [ ! -f "$P/DEADLINE" ]; then
   echo $(( now + HOURS * 3600 )) > "$P/DEADLINE"
 fi
@@ -23,7 +24,7 @@ n=$(( $(cat "$P/turns" 2>/dev/null || echo 0) + 1 ))
 echo "$n" > "$P/turns"
 
 finish() {
-  echo "夜班結束條件已到（$1）。這是最後一回合：不要再開新的加分項。BASE=$(cat .agent-pipeline/BASE)。請 (1) 印出 git log --oneline $BASE..HEAD 與 git diff $BASE --name-only，確認 build/test 狀態；(2) 補完 .agent-pipeline/result.md；(3) git push -u origin night-shift/<date>；(4) touch .agent-pipeline/DONE 並 rm .agent-pipeline/ACTIVE；(5) 在對話裡輸出 skill Step 6 規定的「報告老闆」收工報告。完成後停止。" >&2
+  echo "夜班結束條件已到（$1）。這是最後一回合：不要再開新的加分項。BASE=$(cat .agent-pipeline/BASE)。請 (1) 印出 git log --oneline $BASE..HEAD 與 git diff $BASE --name-only，確認 build/test 狀態；(2) 寫入 .agent-pipeline/TIMING（skill Step 6 第 0 點）並補完 .agent-pipeline/result.md；(3) git push -u origin night-shift/<date>；(4) touch .agent-pipeline/DONE 並 rm .agent-pipeline/ACTIVE；(5) 在對話裡輸出 skill Step 6 規定的「報告老闆」收工報告。完成後停止。" >&2
   echo "finishing" > "$P/STATE"
   exit 2
 }
