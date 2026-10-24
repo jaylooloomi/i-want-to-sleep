@@ -6,10 +6,13 @@
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.6.3-informational" alt="version">
-  <img src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.139-orange" alt="Claude Code ≥ 2.1.139">
-  <img src="https://img.shields.io/badge/OpenAI%20Codex-%E2%89%A5%200.122-black" alt="OpenAI Codex ≥ 0.122">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="license MIT"></a>
+  <img src="https://img.shields.io/badge/version-0.6.3-informational" alt="version 0.6.3">
+  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL-lightgrey" alt="platform macOS | Linux | WSL">
+  <img src="https://img.shields.io/badge/Python-3.8%2B-3776AB" alt="Python 3.8+">
+  <img src="https://img.shields.io/badge/Claude%20Code-plugin-D97757" alt="Claude Code plugin">
+  <img src="https://img.shields.io/badge/Codex-plugin-black" alt="Codex plugin">
+  <a href="tests"><img src="https://img.shields.io/badge/guard%20tests-43%20passing-brightgreen" alt="guard tests 43 passing"></a>
   <a href="README.md"><img src="https://img.shields.io/badge/lang-English-green" alt="English"></a>
 </p>
 
@@ -33,6 +36,8 @@ Codex 上用說的：「接手 3 小時，重點放在效能」。
 ## 安裝
 
 選你用的 agent，照著做三步。
+
+**需求：** Claude Code ≥ 2.1.139 或 Codex CLI ≥ 0.122 · git · bash · Python 3.8+ · macOS、Linux，或 Windows 透過 WSL / Git Bash
 
 ### Claude Code
 
