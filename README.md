@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.6.2-informational" alt="version">
+  <img src="https://img.shields.io/badge/version-0.6.3-informational" alt="version">
   <img src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.139-orange" alt="Claude Code ≥ 2.1.139">
   <img src="https://img.shields.io/badge/OpenAI%20Codex-%E2%89%A5%200.122-black" alt="OpenAI Codex ≥ 0.122">
   <a href="README.zh-TW.md"><img src="https://img.shields.io/badge/lang-繁體中文-green" alt="繁體中文"></a>
@@ -189,7 +189,7 @@ The first number is the duration in hours. Anything after it is passed to the sk
 | Situation | Command | Why it fits |
 |---|---|---|
 | 🌙 **Overnight handover** | `/sleep 8` | You stop mid-feature with all the context loaded — it finishes the job |
-| 💳 **Subscription quota about to reset** | `/sleep 3` | Unused quota vanishes at the reset. Turn it into a branch to review instead |
+| 💳 **Subscription quota about to reset** | new session in any repo: `/sleep 3` | Unused quota vanishes at the reset. No chat needed: with an empty conversation it pulls work from the repo's TODOs, failing tests and roadmap (repo mode) |
 | 🍱 **Lunch, meetings, commute** | `/sleep 1 wrap-up only` | Short and scoped — your half-done work is tidied by the time you're back |
 | ✈️ **Travel, flights, weekends** | `/sleep 12` | Long absence, one batch to review when you return |
 | 🎯 **Night before a client demo** | `/sleep 8 use the demo flow as the baseline` | Anchors the scope on the demo, so every bonus lands where the client will look |
@@ -214,7 +214,8 @@ Every night you close the laptop on a half-finished feature. The model has the c
    │
    ▼
 Step 0  record BASE = current branch; branch night-shift/<date> from it; ACTIVE flag; DEADLINE = now + 8h
-Step 1  read the whole conversation → scope.md (requirement / done / unfinished / rejected)
+Step 1  read the conversation → scope.md (requirement / done / unfinished / rejected)
+        empty conversation? → repo mode: TODOs, failing tests, roadmap
 Step 2  finish every unfinished item — one commit each, build + unit tests, 3 retries
 Step 3  research competitors & top projects for ideas that serve the original requirement
 Step 4  score (Impact × Urgency) / (Effort × Blast); skip anything < 2

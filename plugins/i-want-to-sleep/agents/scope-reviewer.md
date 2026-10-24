@@ -22,4 +22,6 @@ VERDICT: OK | ISSUES
 - [UNCERTAIN item "<name>"] <why>
 ```
 
+If scope.md section 1 says Repo mode ("Repo 模式"), there is no conversation to compare against: instead read each section-3 item's cited file:line or commit and report items whose source does not exist or is already done, as `[S3 item "<name>"] source missing / already done`.
+
 Be brief. Do not rewrite scope.md. Do not propose work. Do not praise. If everything is consistent, output `VERDICT: OK` alone.

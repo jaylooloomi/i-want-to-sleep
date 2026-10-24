@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.6.2-informational" alt="version">
+  <img src="https://img.shields.io/badge/version-0.6.3-informational" alt="version">
   <img src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.139-orange" alt="Claude Code ≥ 2.1.139">
   <img src="https://img.shields.io/badge/OpenAI%20Codex-%E2%89%A5%200.122-black" alt="OpenAI Codex ≥ 0.122">
   <a href="README.md"><img src="https://img.shields.io/badge/lang-English-green" alt="English"></a>
@@ -189,7 +189,7 @@ claude plugin marketplace remove jaylooloomi
 | 情境 | 怎麼下 | 為什麼適合 |
 |---|---|---|
 | 🌙 **夜間交班** | `/sleep 8` | 下班前功能做到一半，context 都在，交給它接著做完 |
-| 💳 **訂閱額度快重置還沒用完** | `/sleep 3` | 額度過了重置點就歸零，與其浪費，不如換成一條待審分支 |
+| 💳 **訂閱額度快重置還沒用完** | 任何 repo 開新 session：`/sleep 3` | 額度過了重置點就歸零。不用先聊：對話是空的時候，它會改從 repo 的 TODO、失敗測試、roadmap 找工作（Repo 模式） |
 | 🍱 **午休、會議、通勤** | `/sleep 1 只收尾` | 短時數＋只收尾，回來時半成品已經收乾淨 |
 | ✈️ **出差、搭機、週末** | `/sleep 12` | 長時段離開，回來一次審一整批 |
 | 🎯 **客戶 demo 前一晚** | `/sleep 8 以「demo 流程」為準` | 把 scope 錨在 demo 上，加分項只往 demo 會看到的地方長 |
@@ -214,7 +214,8 @@ Codex 上用說的：「接手 3 小時，重點放在效能」。
    │
    ▼
 Step 0  記錄 BASE = 當前分支；從它開 night-shift/<date>；ACTIVE 旗標；DEADLINE = 現在 + 8h
-Step 1  讀整段對話 → scope.md（原始需求 / 已完成 / 未完成 / 已否決）
+Step 1  讀對話 → scope.md（原始需求 / 已完成 / 未完成 / 已否決）
+        對話是空的？→ Repo 模式：TODO、失敗測試、roadmap
 Step 2  做完每個未完成項目 — 各自 commit，build + 單元測試，重試 3 次
 Step 3  調研競品與頂尖專案，找能服務原始需求的點子
 Step 4  評分 (Impact × Urgency) / (Effort × Blast)；低於 2 的跳過

@@ -7,7 +7,7 @@ description: 接手代理。當使用者說「我要睡覺了」「你接手」�
 
 ## 定位
 
-- **一次性**：狀態只來自**當前對話**和**當前 repo**。本夜若發現 `.agent-pipeline/` 已有舊檔，直接清掉重來。
+- **一次性**：狀態只來自**當前對話**和**當前 repo**；對話沒有可用工作時，改用 repo 本身的 TODO、失敗測試、roadmap 當錨點（Repo 模式）。本夜若發現 `.agent-pipeline/` 已有舊檔，直接清掉重來。
 - **收尾優先於加分，無條件**。承諾過的事沒有優先級可議。
 - **加分項不停**：做完一個就挑下一個，直到 Stop hook 宣布時數用完或回合用完。白天也能用：`/sleep 2` 就是接手兩小時。
 - **為審閱而設計**：早上使用者只有 30 分鐘。每個加分項獨立 commit、可獨立 revert、result.md 一眼看懂。
@@ -43,6 +43,23 @@ echo $(( $(date +%s) + HOURS * 3600 )) > .agent-pipeline/DEADLINE
 ### Step 1 — 萃取合約：`.agent-pipeline/scope.md`
 
 回讀**整段對話**，寫出四節。寫錯整晚白做，所以寧可多花一回合。
+
+**對話裡沒有可用的工作時（Repo 模式）**：剛開的新 session、對話只有觸發句、或對話內容與這個 repo 無關 → 改從 repo 本身找錨點，依序蒐集：
+
+```bash
+git grep -nE "TODO|FIXME|HACK|XXX" -- ':!.agent-pipeline' | head -50     # 開發者留的待辦
+git log --since=30.days --oneline -i -E --grep "wip|暫時|temp|todo|未完成" # 半成品
+```
+再加上：被 skip / 標 xfail / 目前失敗的測試（跑一次測試看）、README 或 docs 裡的 roadmap／待做清單。
+
+寫 scope.md 時：
+- 第 1 節寫「Repo 模式：依 repo 現有方向推進」，下一行列出你判斷的專案目的（一句話，依 README）。
+- 第 2 節寫「無（新 session）」。
+- 第 3 節放蒐集到的項目，**每項附出處**（檔案:行號 或 commit hash），最多 10 項，挑最具體、最可驗證的；模糊的 TODO（例如「之後重構」）不收。
+- 第 4 節寫「無」。
+- scope-reviewer 在 Repo 模式下改為檢查：每項出處是否真實存在、是否確實未完成。
+- 一個可用錨點都找不到 → 只調研不實作：做 Step 3–4 寫出候選與分數，在 result.md 說明「repo 沒有可錨定的工作」，直接收工。
+
 
 ```markdown
 # Scope（YYYY-MM-DD 夜）
