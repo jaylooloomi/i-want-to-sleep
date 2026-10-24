@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.6.1-informational" alt="version">
+  <img src="https://img.shields.io/badge/version-0.6.2-informational" alt="version">
   <img src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.139-orange" alt="Claude Code ≥ 2.1.139">
   <img src="https://img.shields.io/badge/OpenAI%20Codex-%E2%89%A5%200.122-black" alt="OpenAI Codex ≥ 0.122">
   <a href="README.md"><img src="https://img.shields.io/badge/lang-English-green" alt="English"></a>
@@ -168,6 +168,8 @@ claude plugin marketplace remove jaylooloomi
 /i-want-to-sleep:sleep 2             # 2 小時，白天也能用
 /i-want-to-sleep:sleep 8 以「用 SQLite 版本為準」
 /i-want-to-sleep:sleep 1 只收尾
+/i-want-to-sleep:sleep 6 重點 效能
+/i-want-to-sleep:sleep 8 只加分
 ```
 
 第一個數字是時數，後面的文字會當指示交給 skill。直接說「我要睡覺了」「幫我做 3 小時」也會觸發。
@@ -181,6 +183,21 @@ claude plugin marketplace remove jaylooloomi
 2. 從 `night-shift/<date>` 開 MR，**目標是你出發的那條分支**（記在 `.agent-pipeline/BASE`）。每個加分項是獨立 commit。
 3. 方向不對？在同一個 session 直接說。
 4. 合併後刪 `.agent-pipeline/`。
+
+## 使用情境
+
+| 情境 | 怎麼下 | 為什麼適合 |
+|---|---|---|
+| 🌙 **夜間交班** | `/sleep 8` | 下班前功能做到一半，context 都在，交給它接著做完 |
+| 💳 **訂閱額度快重置還沒用完** | `/sleep 3` | 額度過了重置點就歸零，與其浪費，不如換成一條待審分支 |
+| 🍱 **午休、會議、通勤** | `/sleep 1 只收尾` | 短時數＋只收尾，回來時半成品已經收乾淨 |
+| ✈️ **出差、搭機、週末** | `/sleep 12` | 長時段離開，回來一次審一整批 |
+| 🎯 **客戶 demo 前一晚** | `/sleep 8 以「demo 流程」為準` | 把 scope 錨在 demo 上，加分項只往 demo 會看到的地方長 |
+| 🧪 **補測試、抓隱藏 bug** | `/sleep 6 重點 測試與穩定性` | 實戰第一晚：測試 652 → 744，抓出 3 個測試框架誤報 |
+| ⚡ **效能優化** | `/sleep 6 重點 效能` | 實戰第二晚：換日查詢 7–23 秒 → 0.65 秒 |
+| 🔍 **競品功能對標** | `/sleep 8 只加分` | 調研步驟本來就是抄頂尖做法，早上拿到一份附 commit 的功能差距清單 |
+
+Codex 上用說的：「接手 3 小時，重點放在效能」。
 
 ## 為什麼
 

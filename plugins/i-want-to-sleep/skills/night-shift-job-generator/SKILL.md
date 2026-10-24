@@ -80,6 +80,7 @@ commit：`chore(night-shift): scope`
 - 單項失敗重試 3 次仍失敗 → commit 現況，訊息加 `[WIP-FAILED]`，result.md 記錄卡點，跳下一項。
 - `[存疑]` 跳過。需要用到第 4 節被否決的作法才能完成 → 不做，記錄。
 - `/sleep 只收尾` → 做完這步直接跳 Step 6 收工。
+- `/sleep 只加分` → 整步跳過（見下方參數說明）。
 
 ### Step 3 — 調研加分候選
 
@@ -201,6 +202,8 @@ PreToolUse hook 會實際阻擋 Git / 禁改清單 / 套件安裝；被擋就記
 - `<數字>`（第一個 token）：執行時數，預設 8。例：`/sleep 2`、`/sleep 8 只收尾`。
 - `以 X 為準`：scope.md 第 1 節直接採用。
 - `只收尾`：跳過 Step 3–5。
+- `只加分`：跳過 Step 2。scope.md 第 3 節照寫，但不做，原樣列進 result.md「需要你決定的事」。
+- `重點 X`（或 `focus on X`）：寫進 scope.md 第 1 節末行「本次重點：X」。Step 3 只調研與 X 有關的候選；scorer 的 Impact 以「對 X 的提升」評分。原始需求不變。
 
 ## 不要做的事
 

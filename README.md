@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.6.1-informational" alt="version">
+  <img src="https://img.shields.io/badge/version-0.6.2-informational" alt="version">
   <img src="https://img.shields.io/badge/Claude%20Code-%E2%89%A5%202.1.139-orange" alt="Claude Code ≥ 2.1.139">
   <img src="https://img.shields.io/badge/OpenAI%20Codex-%E2%89%A5%200.122-black" alt="OpenAI Codex ≥ 0.122">
   <a href="README.zh-TW.md"><img src="https://img.shields.io/badge/lang-繁體中文-green" alt="繁體中文"></a>
@@ -168,6 +168,8 @@ Before the first run, check which branch you are on. The night-shift branch fork
 /i-want-to-sleep:sleep 2             # 2 hours — works in the daytime too
 /i-want-to-sleep:sleep 8 use the SQLite version as the baseline
 /i-want-to-sleep:sleep 1 wrap-up only
+/i-want-to-sleep:sleep 6 focus on performance
+/i-want-to-sleep:sleep 8 bonus only
 ```
 
 The first number is the duration in hours. Anything after it is passed to the skill as instructions. Saying "I'm going to sleep" or "take over for 3 hours" in plain language also triggers it.
@@ -181,6 +183,21 @@ The first number is the duration in hours. Anything after it is passed to the sk
 2. Open a merge request from `night-shift/<date>` **into the branch you started from** (recorded in `.agent-pipeline/BASE`). Each bonus item is an independent commit.
 3. Wrong direction? Say so in the same session.
 4. Delete `.agent-pipeline/` after merging.
+
+## Use cases
+
+| Situation | Command | Why it fits |
+|---|---|---|
+| 🌙 **Overnight handover** | `/sleep 8` | You stop mid-feature with all the context loaded — it finishes the job |
+| 💳 **Subscription quota about to reset** | `/sleep 3` | Unused quota vanishes at the reset. Turn it into a branch to review instead |
+| 🍱 **Lunch, meetings, commute** | `/sleep 1 wrap-up only` | Short and scoped — your half-done work is tidied by the time you're back |
+| ✈️ **Travel, flights, weekends** | `/sleep 12` | Long absence, one batch to review when you return |
+| 🎯 **Night before a client demo** | `/sleep 8 use the demo flow as the baseline` | Anchors the scope on the demo, so every bonus lands where the client will look |
+| 🧪 **Hardening and hidden bugs** | `/sleep 6 focus on tests and stability` | Night one in the field: tests 652 → 744, three false passes in the harness caught |
+| ⚡ **Performance work** | `/sleep 6 focus on performance` | Night two in the field: date switch 7–23 s → 0.65 s |
+| 🔍 **Competitive gap analysis** | `/sleep 8 bonus only` | Research is built in — you wake up to a feature-gap list that already has commits |
+
+On Codex, say it instead: "take over for 3 hours, focus on performance".
 
 ## Why
 

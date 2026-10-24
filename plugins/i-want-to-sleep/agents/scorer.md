@@ -10,7 +10,7 @@ For each candidate, assign 1–10 and give a one-line reason:
 
 | Field | Definition |
 |---|---|
-| Impact | how much it improves the ORIGINAL requirement's goal (not how impressive it is) |
+| Impact | how much it improves the ORIGINAL requirement's goal (not how impressive it is). If scope.md section 1 has a line "本次重點：X" / "Focus: X", score Impact by how much it improves X |
 | Urgency | the pit the user would fall into first without it |
 | Effort | implementation complexity |
 | Blast | how much existing behaviour it touches |
