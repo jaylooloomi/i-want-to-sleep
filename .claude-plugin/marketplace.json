@@ -9,7 +9,7 @@
       "name": "i-want-to-sleep",
       "source": "./plugins/i-want-to-sleep",
       "description": "夜班接手：開分支、收尾未完成項目、持續調研並實作加分項，早上留報告與可開 MR 的分支。",
-      "version": "0.6.3",
+      "version": "0.6.4",
       "category": "productivity",
       "keywords": [
         "night-shift",

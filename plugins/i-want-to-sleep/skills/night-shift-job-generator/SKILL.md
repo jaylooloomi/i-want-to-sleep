@@ -195,6 +195,14 @@ Stop hook 會在時間到或回合用完時要求收尾；收到那則指示後�
 
 result.md 從 Step 1 起就要存在並隨時更新，不要留到最後才寫——context 可能在半夜被壓縮，檔案是唯一可靠的記憶。
 
+## 提前結束
+
+使用者下 `/i-want-to-sleep:wake`、在對話裡說「醒來」「停」「先到這裡」「stop」「wake up」，或從別的終端機 `touch .agent-pipeline/STOP`：
+
+1. 若 STOP 檔還不存在，`touch .agent-pipeline/STOP`（Stop hook 看到它就只允許收工）。
+2. 不開新項目。正在做的那一項：使用者說「立刻 / now」→ 直接 commit 現況，訊息加 `[WIP-STOPPED]`；否則做完它再 commit。
+3. 執行 Step 6 收工（TIMING、result.md、push、報告）。結束原因寫「使用者喊停」。
+
 ## 每回合必做（證據協議）
 
 每回合結束前印出 `git status --short`，以及該回合若有 build/test 則印出結果摘要。這是給早上的使用者看的，也避免「連續幾回合沒用工具」被系統判定無進度而停機。

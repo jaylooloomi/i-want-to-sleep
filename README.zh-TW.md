@@ -7,12 +7,12 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="license MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.6.3-informational" alt="version 0.6.3">
+  <img src="https://img.shields.io/badge/version-0.6.4-informational" alt="version 0.6.3">
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL-lightgrey" alt="platform macOS | Linux | WSL">
   <img src="https://img.shields.io/badge/Python-3.8%2B-3776AB" alt="Python 3.8+">
   <img src="https://img.shields.io/badge/Claude%20Code-plugin-D97757" alt="Claude Code plugin">
   <img src="https://img.shields.io/badge/Codex-plugin-black" alt="Codex plugin">
-  <a href="tests"><img src="https://img.shields.io/badge/guard%20tests-43%20passing-brightgreen" alt="guard tests 43 passing"></a>
+  <a href="tests"><img src="https://img.shields.io/badge/tests-52%20passing-brightgreen" alt="tests 52 passing"></a>
   <a href="README.md"><img src="https://img.shields.io/badge/lang-English-green" alt="English"></a>
 </p>
 
@@ -174,7 +174,11 @@ claude plugin marketplace remove jaylooloomi
 /i-want-to-sleep:sleep 1 只收尾
 /i-want-to-sleep:sleep 6 重點 效能
 /i-want-to-sleep:sleep 8 只加分
+/i-want-to-sleep:wake               # 提前結束：做完手上這項就收工、交報告
+/i-want-to-sleep:wake 立刻          # 立刻收工，手上的變更以 [WIP-STOPPED] commit
 ```
+
+人不在電腦前也能叫停：從另一個終端機或 SSH 執行 `touch .agent-pipeline/STOP`，下一回合結束時它就會收工。Codex 上直接說「停，收工」。
 
 第一個數字是時數，後面的文字會當指示交給 skill。直接說「我要睡覺了」「幫我做 3 小時」也會觸發。
 
@@ -272,6 +276,7 @@ Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 |---|---|
 | `plugins/i-want-to-sleep/skills/night-shift-job-generator/SKILL.md` | 流程：scope → 收尾 → 調研 → 評分 → 實作 → 報告 |
 | `plugins/i-want-to-sleep/commands/sleep.md` | `/i-want-to-sleep:sleep [hours] [指示]` |
+| `plugins/i-want-to-sleep/commands/wake.md` | `/i-want-to-sleep:wake [立刻]` — 提前結束 |
 | `plugins/i-want-to-sleep/hooks/hooks.json` | 註冊四個 hook（3 個 command、1 個 prompt） |
 | `plugins/i-want-to-sleep/scripts/night-shift-stop.sh` | Stop hook：推回去繼續；時限到要求收工 |
 | `plugins/i-want-to-sleep/scripts/guard-bash.sh` | PreToolUse：shell 指令防線 |

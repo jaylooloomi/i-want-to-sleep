@@ -7,12 +7,12 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="license MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.6.3-informational" alt="version 0.6.3">
+  <img src="https://img.shields.io/badge/version-0.6.4-informational" alt="version 0.6.3">
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL-lightgrey" alt="platform macOS | Linux | WSL">
   <img src="https://img.shields.io/badge/Python-3.8%2B-3776AB" alt="Python 3.8+">
   <img src="https://img.shields.io/badge/Claude%20Code-plugin-D97757" alt="Claude Code plugin">
   <img src="https://img.shields.io/badge/Codex-plugin-black" alt="Codex plugin">
-  <a href="tests"><img src="https://img.shields.io/badge/guard%20tests-43%20passing-brightgreen" alt="guard tests 43 passing"></a>
+  <a href="tests"><img src="https://img.shields.io/badge/tests-52%20passing-brightgreen" alt="tests 52 passing"></a>
   <a href="README.zh-TW.md"><img src="https://img.shields.io/badge/lang-繁體中文-green" alt="繁體中文"></a>
 </p>
 
@@ -174,7 +174,11 @@ Before the first run, check which branch you are on. The night-shift branch fork
 /i-want-to-sleep:sleep 1 wrap-up only
 /i-want-to-sleep:sleep 6 focus on performance
 /i-want-to-sleep:sleep 8 bonus only
+/i-want-to-sleep:wake                # stop early: finish the current item, then wrap up and report
+/i-want-to-sleep:wake now            # stop now: commit work in progress as [WIP-STOPPED], then report
 ```
+
+Not at the keyboard? From another terminal or over SSH, `touch .agent-pipeline/STOP` — it wraps up at the end of the current turn. On Codex, just say "stop, wrap up".
 
 The first number is the duration in hours. Anything after it is passed to the skill as instructions. Saying "I'm going to sleep" or "take over for 3 hours" in plain language also triggers it.
 
@@ -271,6 +275,7 @@ The same plugin folder ships both a Claude Code manifest (`.claude-plugin/`) and
 |---|---|
 | `plugins/i-want-to-sleep/skills/night-shift-job-generator/SKILL.md` | the procedure: scope → wrap-up → research → score → implement → report |
 | `plugins/i-want-to-sleep/commands/sleep.md` | `/i-want-to-sleep:sleep [hours] [instructions]` |
+| `plugins/i-want-to-sleep/commands/wake.md` | `/i-want-to-sleep:wake [now]` — stop early |
 | `plugins/i-want-to-sleep/hooks/hooks.json` | registers the four hooks (3 command, 1 prompt) |
 | `plugins/i-want-to-sleep/scripts/night-shift-stop.sh` | Stop hook: keep working; request wrap-up at the deadline |
 | `plugins/i-want-to-sleep/scripts/guard-bash.sh` | PreToolUse guard for shell commands |
