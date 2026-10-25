@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="license MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.6.4-informational" alt="version 0.6.3">
+  <img src="https://img.shields.io/badge/version-0.6.5-informational" alt="version 0.6.3">
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL-lightgrey" alt="platform macOS | Linux | WSL">
   <img src="https://img.shields.io/badge/Python-3.8%2B-3776AB" alt="Python 3.8+">
   <img src="https://img.shields.io/badge/Claude%20Code-plugin-D97757" alt="Claude Code plugin">
@@ -31,7 +31,7 @@
 | ⚡ **效能優化** | `/sleep 6 重點 效能` | 實戰第二晚：換日查詢 7–23 秒 → 0.65 秒 |
 | 🔍 **競品功能對標** | `/sleep 8 只加分` | 調研步驟本來就是抄頂尖做法，早上拿到一份附 commit 的功能差距清單 |
 
-Codex 上用說的：「接手 3 小時，重點放在效能」。
+Codex 上改用 `$sleep`：`$sleep 3 重點 效能`。
 
 ## 安裝
 
@@ -80,10 +80,11 @@ codex --yolo
 ```
 進去後輸入 `/hooks`，信任 i-want-to-sleep 的 hook（一次就好）。**沒做這步什麼都不會跑**：Codex 不會執行未經信任的 plugin hook。
 
-**3. 在有工作進行中的 session 裡說**（Codex 沒有 `/sleep` 指令）
+**3. 在有工作進行中的 session 裡輸入**
 ```
-我要睡覺了，接手 8 小時
+$sleep 8
 ```
+或直接說：「我要睡覺了，接手 8 小時」。
 
 8 小時後回來看報告。
 
@@ -178,7 +179,7 @@ claude plugin marketplace remove jaylooloomi
 /i-want-to-sleep:wake 立刻          # 立刻收工，手上的變更以 [WIP-STOPPED] commit
 ```
 
-人不在電腦前也能叫停：從另一個終端機或 SSH 執行 `touch .agent-pipeline/STOP`，下一回合結束時它就會收工。Codex 上直接說「停，收工」。
+人不在電腦前也能叫停：從另一個終端機或 SSH 執行 `touch .agent-pipeline/STOP`，下一回合結束時它就會收工。Codex 上用 `$sleep 8`、`$wake`、`$wake 立刻`，或直接說「停，收工」。
 
 第一個數字是時數，後面的文字會當指示交給 skill。直接說「我要睡覺了」「幫我做 3 小時」也會觸發。
 
@@ -265,7 +266,7 @@ Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 |---|---|
 | Claude Code（CLI、桌面版、Remote Control）≥ 2.1.139 | ✅ 支援 |
 | claude.ai 網頁 / 手機聊天 | ❌ 無法無人看管地跑 session |
-| OpenAI Codex CLI ≥ 0.122 | ✅ 支援（0.6.0 起）——需在 `/hooks` 信任；無證據檢查 hook；無 `/sleep` 指令 |
+| OpenAI Codex CLI ≥ 0.122 | ✅ 支援（0.6.0 起）——需在 `/hooks` 信任；無證據檢查 hook；指令是 `$sleep` / `$wake` |
 | Cursor、Gemini CLI、Copilot CLI … | ❌ 尚未 |
 
 同一個 plugin 資料夾同時有 Claude Code manifest（`.claude-plugin/`）和 Codex manifest（`.codex-plugin/`）；Codex 執行同一套 hook 腳本，並為相容性提供 `CLAUDE_PLUGIN_ROOT`。Cursor、Gemini CLI、Copilot CLI 也有等價的 stop hook（見 [goal-loop](https://github.com/bodecloud/goal-loop)）。歡迎 PR。
@@ -275,8 +276,8 @@ Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 | 路徑 | 作用 |
 |---|---|
 | `plugins/i-want-to-sleep/skills/night-shift-job-generator/SKILL.md` | 流程：scope → 收尾 → 調研 → 評分 → 實作 → 報告 |
-| `plugins/i-want-to-sleep/commands/sleep.md` | `/i-want-to-sleep:sleep [hours] [指示]` |
-| `plugins/i-want-to-sleep/commands/wake.md` | `/i-want-to-sleep:wake [立刻]` — 提前結束 |
+| `plugins/i-want-to-sleep/skills/sleep/SKILL.md` | 開始夜班 — `/i-want-to-sleep:sleep`（Claude Code）、`$sleep`（Codex） |
+| `plugins/i-want-to-sleep/skills/wake/SKILL.md` | 提前結束 — `/i-want-to-sleep:wake`（Claude Code）、`$wake`（Codex） |
 | `plugins/i-want-to-sleep/hooks/hooks.json` | 註冊四個 hook（3 個 command、1 個 prompt） |
 | `plugins/i-want-to-sleep/scripts/night-shift-stop.sh` | Stop hook：推回去繼續；時限到要求收工 |
 | `plugins/i-want-to-sleep/scripts/guard-bash.sh` | PreToolUse：shell 指令防線 |

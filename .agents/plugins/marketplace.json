@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "i-want-to-sleep",
-      "version": "0.6.4",
+      "version": "0.6.5",
       "description": "Say \"I'm going to sleep\" and the agent takes over for N hours: finishes what the conversation left unfinished, then researches, scores and ships bonus features on a guarded branch.",
       "source": {
         "source": "local",

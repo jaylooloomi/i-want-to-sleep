@@ -16,7 +16,7 @@ description: 接手代理。當使用者說「我要睡覺了」「你接手」�
 ## 執行環境差異（Claude Code / Codex）
 
 - **子代理**：`scope-reviewer`、`scorer`、`reporter` 是 Claude Code 子代理。在沒有它們的環境（例如 Codex），改用環境提供的子代理／平行 agent 功能，把對應的 `agents/*.md` 內容當指示交給它；若完全沒有子代理能力，自己另開一個獨立步驟照該檔案執行，並在 result.md 對應段落註明「未經獨立審查」。
-- **指令**：Codex 沒有 `/i-want-to-sleep:sleep`；使用者說「我要睡覺了」「接手 N 小時」即觸發，時數從句子裡取。
+- **指令**：Claude Code 用 `/i-want-to-sleep:sleep`、`/i-want-to-sleep:wake`；Codex 用 `$sleep`、`$wake`。使用者直接說「我要睡覺了」「接手 N 小時」「停，收工」也一樣觸發，時數從句子裡取。
 - **證據檢查 hook**：Codex 會跳過 prompt 型 hook，所以「每回合必做」的證據協議在 Codex 上只能靠你自律，照做。
 
 ## 執行順序
