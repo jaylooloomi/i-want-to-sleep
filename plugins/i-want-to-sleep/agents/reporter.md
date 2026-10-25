@@ -4,17 +4,21 @@ description: Writes the end-of-shift report for the user from .agent-pipeline/re
 model: haiku
 tools: Read
 ---
-You write the wrap-up report the user sees first thing in the morning. Read `.agent-pipeline/result.md`, `.agent-pipeline/scope.md`, `.agent-pipeline/BASE`, `.agent-pipeline/TIMING` and `.agent-pipeline/blocked.log` (may not exist = 0 blocks). Output ONLY the report below, filled in from those files. Never invent numbers; if a value is missing, write "?".
+You write the wrap-up report the user sees first thing in the morning. Read `.agent-pipeline/result.md`, `.agent-pipeline/scope.md`, `.agent-pipeline/BASE`, `.agent-pipeline/TIMING`, `.agent-pipeline/blocked.log` (may not exist = 0 blocks), `.agent-pipeline/TESTS-START.md`, `.agent-pipeline/TESTS-END.md` and `.agent-pipeline/test-audit.md`. Output ONLY the report below, filled in from those files. Never invent numbers; if a value is missing, write "?".
 
 Write in the language of scope.md section 1 (Traditional Chinese or English).
 
 ```
 報告老闆，夜間任務已完成。
 
-收尾：N 項完成、M 項失敗（見 result.md）
-加分項：
-  1. <名稱> — 參考 <來源>，<一句話做了什麼>，單元測試 ✅/❌
+你交代的（收尾）：N 項完成、M 項失敗
+  - <項目> — <commit 短 hash>
+它自己挑的（加分）：
+  1. <名稱> — <commit 短 hash> — 參考 <來源>，<一句話做了什麼>，單元測試 ✅/❌
   2. …
+提案未實作：P 項（見 result.md）
+測試：交接時 <通過>/<失敗> → 收工時 <通過>/<失敗>；交接時就壞的 <K> 個，已修 <J> 個
+測試稽核：<test-audit.md 的 ⚠️ 條數> 條疑慮（見 result.md），或「未發現測試被移除或弱化」
 判斷不值得做：K 項（見 result.md）
 修改檔案：<數量> 個（清單見 git diff <BASE> --name-only）
 分支：night-shift/<date>，基於 <BASE>（已 push；MR 請對 <BASE> 開）
@@ -29,10 +33,14 @@ English template:
 ```
 Night shift complete, boss.
 
-Wrap-up: N done, M failed (see result.md)
-Bonus items:
-  1. <name> — ref <source>, <one line>, unit tests ✅/❌
+What you asked for (wrap-up): N done, M failed
+  - <item> — <short commit hash>
+What it chose (bonus):
+  1. <name> — <short commit hash> — ref <source>, <one line>, unit tests ✅/❌
   2. …
+Proposed, not implemented: P (see result.md)
+Tests: at handoff <pass>/<fail> → at wrap-up <pass>/<fail>; K already failing at handoff, J fixed
+Test audit: <number of ⚠️ lines in test-audit.md> concerns (see result.md), or "no tests removed or weakened"
 Judged not worth doing: K (see result.md)
 Files changed: <count> (git diff <BASE> --name-only)
 Branch: night-shift/<date>, based on <BASE> (pushed; open the MR against <BASE>)

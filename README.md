@@ -7,12 +7,12 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="license MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.6.6-informational" alt="version 0.6.3">
+  <img src="https://img.shields.io/badge/version-0.7.0-informational" alt="version 0.6.3">
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL-lightgrey" alt="platform macOS | Linux | WSL">
   <img src="https://img.shields.io/badge/Python-3.8%2B-3776AB" alt="Python 3.8+">
   <img src="https://img.shields.io/badge/Claude%20Code-plugin-D97757" alt="Claude Code plugin">
   <img src="https://img.shields.io/badge/Codex-plugin-black" alt="Codex plugin">
-  <a href="tests"><img src="https://img.shields.io/badge/tests-54%20passing-brightgreen" alt="tests 54 passing"></a>
+  <a href="tests"><img src="https://img.shields.io/badge/tests-59%20passing-brightgreen" alt="tests 59 passing"></a>
   <a href="README.zh-TW.md"><img src="https://img.shields.io/badge/lang-繁體中文-green" alt="繁體中文"></a>
 </p>
 
@@ -175,6 +175,7 @@ Before the first run, check which branch you are on. The night-shift branch fork
 /i-want-to-sleep:sleep 1 wrap-up only
 /i-want-to-sleep:sleep 6 focus on performance
 /i-want-to-sleep:sleep 8 bonus only
+/i-want-to-sleep:sleep 8 propose only  # finish what you asked; research & score ideas, implement none
 /i-want-to-sleep:wake                # stop early: finish the current item, then wrap up and report
 /i-want-to-sleep:wake now            # stop now: commit work in progress as [WIP-STOPPED], then report
 ```
@@ -189,6 +190,7 @@ The first number is the duration in hours. Anything after it is passed to the sk
 
 
 1. Read the wrap-up report in the session (what was done, sources, test status, files, decisions needed). Details in `.agent-pipeline/result.md`.
+   The report splits **what you asked for** from **what it chose**, each with its commit hash. **Tests** compares handoff vs wrap-up (pass/fail, which failures were already there) and includes a hook-generated **test audit**: deleted test files, removed cases or assertions, new skips.
    Check **Blocked by guards** first: every attempt the hooks stopped is logged by the hook itself in `.agent-pipeline/blocked.log`, and `result.md` adds what the agent was trying to do and what it did instead. Green tests tell you the code works; this tells you whether to give it another night.
 2. Open a merge request from `night-shift/<date>` **into the branch you started from** (recorded in `.agent-pipeline/BASE`). Each bonus item is an independent commit.
 3. Wrong direction? Say so in the same session.
@@ -282,6 +284,7 @@ The same plugin folder ships both a Claude Code manifest (`.claude-plugin/`) and
 | `plugins/i-want-to-sleep/scripts/night-shift-stop.sh` | Stop hook: keep working; request wrap-up at the deadline |
 | `plugins/i-want-to-sleep/scripts/guard-bash.sh` | PreToolUse guard for shell commands |
 | `plugins/i-want-to-sleep/scripts/guard-write.sh` | PreToolUse guard for file writes |
+| `plugins/i-want-to-sleep/scripts/test_audit.py` | run by the Stop hook: flags tests deleted, weakened or skipped since the shift began |
 | `plugins/i-want-to-sleep/agents/scope-reviewer.md` | Haiku subagent: second reading of `scope.md` |
 | `plugins/i-want-to-sleep/agents/scorer.md` | Haiku subagent: independent candidate scoring, dedup against last 30 days of commits |
 | `plugins/i-want-to-sleep/agents/reporter.md` | Haiku subagent: writes the morning report from `result.md` |

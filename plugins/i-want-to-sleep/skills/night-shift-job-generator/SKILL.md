@@ -36,6 +36,7 @@ echo $(( $(date +%s) + HOURS * 3600 )) > .agent-pipeline/DEADLINE
 ```
 
 - DEADLINE 是 Stop hook 判斷收工的唯一時間依據；一定要寫，寫錯整晚不會停。
+- **測試基線**：開分支後、動任何程式碼前，跑一次完整的單元測試，寫入 `.agent-pipeline/TESTS-START.md`：用的指令、通過／失敗／略過數、每個失敗測試的名稱。這是「交接時就已經壞的」證據，收工時拿來對照。
 - BASE 是早上報告的比較基準。凡是本文件寫 `$BASE` 的地方，一律讀 `.agent-pipeline/BASE`，不要寫死 main。
 - 有 stash 的變更要寫進 result.md「需要你決定的事」。
 - 整晚只在這條分支上。禁止 merge / rebase / reset --hard / --force；push 只在收工時推到這條分支（PreToolUse hook 會擋其他目標，但不要去試）。
@@ -150,7 +151,8 @@ Stop hook 會在時間到或回合用完時要求收尾；收到那則指示後�
    python3 -c "import time;P='.agent-pipeline/';s=int(open(P+'START').read());d=int(open(P+'DEADLINE').read());e=int(time.time());open(P+'END','w').write(str(e));f=lambda t:time.strftime('%Y-%m-%d %H:%M',time.localtime(t));h=lambda x:f'{x//3600}h{x%3600//60:02d}m';r=d-e;open(P+'TIMING','w').write(f'開始 {f(s)}｜結束 {f(e)}｜實際執行 {h(e-s)}／預定 {h(d-s)}'+(f'｜提早 {h(r)} 收工' if r>60 else '')+'\n')"
    cat .agent-pipeline/TIMING
    ```
-1. 印出 `git log --oneline $BASE..HEAD`、`git diff $BASE --name-only`、最後一次 build/test 結果（`$BASE` 讀自 `.agent-pipeline/BASE`）。
+1. 用 TESTS-START.md 同一個指令再跑一次完整測試，寫入 `.agent-pipeline/TESTS-END.md`（同樣格式）。
+2. 印出 `git log --oneline $BASE..HEAD`、`git diff $BASE --name-only`、最後一次 build/test 結果（`$BASE` 讀自 `.agent-pipeline/BASE`）。
 2. 補完 result.md（格式如下）。
 3. commit `docs(night-shift): result`。
 4. `git push -u origin night-shift/<date>`（只允許這條分支；hook 會擋其他目標）。
@@ -180,11 +182,25 @@ Stop hook 會在時間到或回合用完時要求收尾；收到那則指示後�
 |---|---|---|---|
 
 ## 加分項（每行一個，可獨立 revert）
-| # | 名稱 | Score | 參考來源（競品 / 專案 / 文章） | 做了什麼 | 驗證指令 | 測試狀態 | 否決的替代作法 |
-|---|---|---|---|---|---|---|---|
+| # | 名稱 | commit | Score | 參考來源（競品 / 專案 / 文章） | 做了什麼 | 驗證指令 | 測試狀態 | 否決的替代作法 |
+|---|---|---|---|---|---|---|---|---|
 
 ## 判斷不值得做
 - （名稱 / 分數 / 一句原因）
+
+## 測試對照
+| | 通過 | 失敗 | 略過 |
+|---|---|---|---|
+| 交接時（TESTS-START） | | | |
+| 收工時（TESTS-END） | | | |
+
+交接時就失敗的測試：…（逐一列出，標明收工時是否已修）
+收工時新增的失敗：…（應為零；不為零要說明）
+測試稽核：原樣貼上 `.agent-pipeline/test-audit.md`（由 hook 產生，列出被刪除的測試檔、淨減的測試案例與斷言、新增的 skip/xfail），每條補一句理由；不得刪改。
+
+## 提案（只提案模式，或判斷不該擅自實作的候選）
+| 名稱 | Score | 參考來源 | 預估規模 | 為什麼值得做 |
+|---|---|---|---|---|
 
 ## 被防線擋下的動作
 （逐行對應 `.agent-pipeline/blocked.log`，由 hook 寫入，不得刪改。每行補上：當時想做什麼、被擋後怎麼處理。沒有就寫「無」。）
@@ -232,6 +248,7 @@ PreToolUse hook 會實際阻擋 Git / 禁改清單 / 套件安裝，並把每次
 - `<數字>`（第一個 token）：執行時數，預設 8。例：`/sleep 2`、`/sleep 8 只收尾`。
 - `以 X 為準`：scope.md 第 1 節直接採用。
 - `只收尾`：跳過 Step 3–5。
+- `只提案`（或 `propose only`）：Step 2 照做（你交代的事做完）；Step 3–4 只跑一輪，候選與分數寫進 result.md「提案」段落，**不實作任何加分項**，然後直接 Step 6 收工。範圍邊界與時數無關。
 - `只加分`：跳過 Step 2。scope.md 第 3 節照寫，但不做，原樣列進 result.md「需要你決定的事」。
 - `重點 X`（或 `focus on X`）：寫進 scope.md 第 1 節末行「本次重點：X」。Step 3 只調研與 X 有關的候選；scorer 的 Impact 以「對 X 的提升」評分。原始需求不變。
 

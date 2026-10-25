@@ -7,12 +7,12 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="license MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.6.6-informational" alt="version 0.6.3">
+  <img src="https://img.shields.io/badge/version-0.7.0-informational" alt="version 0.6.3">
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL-lightgrey" alt="platform macOS | Linux | WSL">
   <img src="https://img.shields.io/badge/Python-3.8%2B-3776AB" alt="Python 3.8+">
   <img src="https://img.shields.io/badge/Claude%20Code-plugin-D97757" alt="Claude Code plugin">
   <img src="https://img.shields.io/badge/Codex-plugin-black" alt="Codex plugin">
-  <a href="tests"><img src="https://img.shields.io/badge/tests-54%20passing-brightgreen" alt="tests 54 passing"></a>
+  <a href="tests"><img src="https://img.shields.io/badge/tests-59%20passing-brightgreen" alt="tests 59 passing"></a>
   <a href="README.md"><img src="https://img.shields.io/badge/lang-English-green" alt="English"></a>
 </p>
 
@@ -175,6 +175,7 @@ claude plugin marketplace remove jaylooloomi
 /i-want-to-sleep:sleep 1 只收尾
 /i-want-to-sleep:sleep 6 重點 效能
 /i-want-to-sleep:sleep 8 只加分
+/i-want-to-sleep:sleep 8 只提案        # 交代的做完；加分項只調研打分、不實作
 /i-want-to-sleep:wake               # 提前結束：做完手上這項就收工、交報告
 /i-want-to-sleep:wake 立刻          # 立刻收工，手上的變更以 [WIP-STOPPED] commit
 ```
@@ -189,6 +190,7 @@ claude plugin marketplace remove jaylooloomi
 
 
 1. 看 session 裡的收工報告（做了什麼、參考來源、測試狀態、檔案、需要你決定的事）。細節在 `.agent-pipeline/result.md`。
+   報告把**你交代的**和**它自己挑的**分開列，每項附 commit hash。**測試**一段對照交接時與收工時（通過／失敗、哪些失敗是交接時就有的），並附 hook 產生的**測試稽核**：被刪的測試檔、減少的案例或斷言、新增的 skip。
    先看**被防線擋下**那段：每一次阻擋都由 hook 自己寫進 `.agent-pipeline/blocked.log`，result.md 再補上它當時想做什麼、被擋後怎麼處理。綠燈告訴你程式能跑；這段告訴你要不要讓它再跑一晚。
 2. 從 `night-shift/<date>` 開 MR，**目標是你出發的那條分支**（記在 `.agent-pipeline/BASE`）。每個加分項是獨立 commit。
 3. 方向不對？在同一個 session 直接說。
@@ -283,6 +285,7 @@ Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 | `plugins/i-want-to-sleep/scripts/night-shift-stop.sh` | Stop hook：推回去繼續；時限到要求收工 |
 | `plugins/i-want-to-sleep/scripts/guard-bash.sh` | PreToolUse：shell 指令防線 |
 | `plugins/i-want-to-sleep/scripts/guard-write.sh` | PreToolUse：檔案寫入防線 |
+| `plugins/i-want-to-sleep/scripts/test_audit.py` | Stop hook 執行：標出夜班期間被刪除、弱化或 skip 的測試 |
 | `plugins/i-want-to-sleep/agents/scope-reviewer.md` | Haiku 子代理：scope.md 第二雙眼睛 |
 | `plugins/i-want-to-sleep/agents/scorer.md` | Haiku 子代理：獨立候選評分，並對照最近 30 天 commit 去重 |
 | `plugins/i-want-to-sleep/agents/reporter.md` | Haiku 子代理：從 `result.md` 產生早上的報告 |
