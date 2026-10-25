@@ -7,12 +7,12 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="license MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.6.5-informational" alt="version 0.6.3">
+  <img src="https://img.shields.io/badge/version-0.6.6-informational" alt="version 0.6.3">
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL-lightgrey" alt="platform macOS | Linux | WSL">
   <img src="https://img.shields.io/badge/Python-3.8%2B-3776AB" alt="Python 3.8+">
   <img src="https://img.shields.io/badge/Claude%20Code-plugin-D97757" alt="Claude Code plugin">
   <img src="https://img.shields.io/badge/Codex-plugin-black" alt="Codex plugin">
-  <a href="tests"><img src="https://img.shields.io/badge/tests-52%20passing-brightgreen" alt="tests 52 passing"></a>
+  <a href="tests"><img src="https://img.shields.io/badge/tests-54%20passing-brightgreen" alt="tests 54 passing"></a>
   <a href="README.md"><img src="https://img.shields.io/badge/lang-English-green" alt="English"></a>
 </p>
 
@@ -133,7 +133,7 @@ claude --dangerously-skip-permissions
 
 | 設定 | 作用 |
 |---|---|
-| `--dangerously-skip-permissions` | 半夜沒人按確認。不想每次打，可在 repo 的 `.claude/settings.local.json` 寫 `"permissions": { "defaultMode": "bypassPermissions" }`；auto mode 也可以 |
+| `--dangerously-skip-permissions` | 半夜沒人按確認；auto mode 也可以。**不要**把 `bypassPermissions` 寫進 `settings.local.json`：它對這個 repo 的每個 session 都生效，包括白天——而白天沒有 `ACTIVE` 檔，防線是關的。嫌每次打 flag 麻煩，用只在夜班用的 alias：`alias nightshift='claude --dangerously-skip-permissions'` |
 | `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=0`（`~/.claude/settings.json` 的 `env`） | Claude Code 預設連續 8 次 stop-hook 續跑就強制結束回合；`0` 取消。plugin 自己有時限與回合上限 |
 | `NIGHT_SHIFT_HOURS`（選填，預設 8） | `/sleep` 沒給數字時的時長 |
 | `NIGHT_SHIFT_MAX_TURNS`（選填，預設 120） | 回合數兜底 |
@@ -189,6 +189,7 @@ claude plugin marketplace remove jaylooloomi
 
 
 1. 看 session 裡的收工報告（做了什麼、參考來源、測試狀態、檔案、需要你決定的事）。細節在 `.agent-pipeline/result.md`。
+   先看**被防線擋下**那段：每一次阻擋都由 hook 自己寫進 `.agent-pipeline/blocked.log`，result.md 再補上它當時想做什麼、被擋後怎麼處理。綠燈告訴你程式能跑；這段告訴你要不要讓它再跑一晚。
 2. 從 `night-shift/<date>` 開 MR，**目標是你出發的那條分支**（記在 `.agent-pipeline/BASE`）。每個加分項是獨立 commit。
 3. 方向不對？在同一個 session 直接說。
 4. 合併後刪 `.agent-pipeline/`。

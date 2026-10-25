@@ -14,7 +14,21 @@ PROTECTED = re.compile(
     r'|(^|/)\.env|web\.config|app\.config|\.csproj$|(^|/)package\.json$|requirements[^/\s]*\.txt'
     r'|Directory\.Packages\.props)')
 
+ROOT = None
+CMD = ''
+
+def log_block(root, rule, detail):
+    """Append every blocked attempt to .agent-pipeline/blocked.log — written by the hook, not the model."""
+    try:
+        import datetime
+        line = detail.replace('\n', ' ⏎ ')[:300]
+        with open(os.path.join(root, '.agent-pipeline', 'blocked.log'), 'a', encoding='utf-8') as f:
+            f.write(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\t{rule}\t{line}\n")
+    except Exception:
+        pass
+
 def deny(msg):
+    if ROOT: log_block(ROOT, msg, CMD)
     sys.stderr.write(f"夜班防線阻擋：{msg}。夜班不允許此動作；改用其他方式，或記錄到 result.md「需要你決定的事」。\n")
     sys.exit(2)
 
@@ -122,6 +136,8 @@ def main():
     except Exception:
         return
     if not cmd: return
+    global ROOT, CMD
+    ROOT, CMD = root, cmd
     try:
         segs = list(segments(cmd))
     except ValueError:

@@ -24,4 +24,8 @@ for exp, cmd in CASES:
     r = subprocess.run([guard], input=json.dumps({"tool_input": {"command": cmd}}), capture_output=True, text=True, env=env)
     if r.returncode != exp:
         bad += 1; print(f"FAIL expected {exp} got {r.returncode}: {cmd!r}")
-print(f"{len(CASES)-bad}/{len(CASES)} passed"); sys.exit(1 if bad else 0)
+log = os.path.join(root, '.agent-pipeline', 'blocked.log')
+want = sum(1 for e, _ in CASES if e == 2)
+got = len(open(log, encoding='utf-8').read().splitlines()) if os.path.exists(log) else 0
+if got != want: bad += 1; print(f"FAIL blocked.log has {got} lines, want {want}")
+print(f"{len(CASES)+1-bad}/{len(CASES)+1} passed"); sys.exit(1 if bad else 0)

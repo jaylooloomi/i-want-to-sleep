@@ -26,5 +26,9 @@ subprocess.run(['git', 'init', '-q', root]); sub = os.path.join(root, 'src', 'de
 env2 = {k: v for k, v in os.environ.items() if k != 'CLAUDE_PROJECT_DIR'}
 r = subprocess.run([guard], input=json.dumps({"tool_input": {"file_path": "package.json"}}), capture_output=True, text=True, env=env2, cwd=sub)
 if r.returncode != 2: bad += 1; print("FAIL git-root fallback from subdirectory")
-total = len(CASES) + 1
+log = os.path.join(root, '.agent-pipeline', 'blocked.log')
+want = sum(1 for e, _ in CASES if e == 2) + 1   # +1 for the git-root fallback case
+got = len(open(log, encoding='utf-8').read().splitlines()) if os.path.exists(log) else 0
+if got != want: bad += 1; print(f"FAIL blocked.log has {got} lines, want {want}")
+total = len(CASES) + 2
 print(f"{total-bad}/{total} passed"); sys.exit(1 if bad else 0)
