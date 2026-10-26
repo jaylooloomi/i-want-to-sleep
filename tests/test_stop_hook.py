@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Arthur Wang
 """Run: python3 tests/test_stop_hook.py — every Stop-hook path must exit 0 (allow) or 2 (block), never crash."""
 import os, subprocess, sys, tempfile, time
 here = os.path.dirname(os.path.abspath(__file__))

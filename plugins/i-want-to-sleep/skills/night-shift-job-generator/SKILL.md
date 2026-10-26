@@ -16,7 +16,7 @@ description: 接手代理。當使用者說「我要睡覺了」「你接手」�
 ## 執行環境差異（Claude Code / Codex）
 
 - **子代理**：`scope-reviewer`、`scorer`、`reporter` 是 Claude Code 子代理。在沒有它們的環境（例如 Codex），改用環境提供的子代理／平行 agent 功能，把對應的 `agents/*.md` 內容當指示交給它；若完全沒有子代理能力，自己另開一個獨立步驟照該檔案執行，並在 result.md 對應段落註明「未經獨立審查」。
-- **指令**：Claude Code 用 `/i-want-to-sleep:sleep`、`/i-want-to-sleep:wake`；Codex 用 `$sleep`、`$wake`。使用者直接說「我要睡覺了」「接手 N 小時」「停，收工」也一樣觸發，時數從句子裡取。
+- **指令**：Claude Code 用 `/i-want-to-sleep:sleep`、`/i-want-to-sleep:wake`、`/i-want-to-sleep:stop`；Codex 用 `$sleep`、`$wake`、`$stop`。使用者直接說「我要睡覺了」「接手 N 小時」「停，收工」也一樣觸發，時數從句子裡取。
 - **證據檢查 hook**：Codex 會跳過 prompt 型 hook，所以「每回合必做」的證據協議在 Codex 上只能靠你自律，照做。
 
 ## 執行順序
@@ -218,7 +218,7 @@ result.md 從 Step 1 起就要存在並隨時更新，不要留到最後才寫�
 
 ## 提前結束
 
-使用者下 `/i-want-to-sleep:wake`、在對話裡說「醒來」「停」「先到這裡」「stop」「wake up」，或從別的終端機 `touch .agent-pipeline/STOP`：
+使用者下 `/i-want-to-sleep:wake` 或 `/i-want-to-sleep:stop`（Codex：`$wake` / `$stop`）、在對話裡說「醒來」「停」「先到這裡」「stop」「wake up」，或從別的終端機 `touch .agent-pipeline/STOP`：
 
 1. 若 STOP 檔還不存在，`touch .agent-pipeline/STOP`（Stop hook 看到它就只允許收工）。
 2. 不開新項目。正在做的那一項：使用者說「立刻 / now」→ 直接 commit 現況，訊息加 `[WIP-STOPPED]`；否則做完它再 commit。

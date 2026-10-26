@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Arthur Wang
 """Run: python3 tests/test_test_audit.py — audit must flag deleted tests, removed cases, removed asserts, new skips."""
 import os, subprocess, sys, tempfile
 here = os.path.dirname(os.path.abspath(__file__))

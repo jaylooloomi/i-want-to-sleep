@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Arthur Wang
 # One-liner: curl -fsSL https://raw.githubusercontent.com/jaylooloomi/i-want-to-sleep/main/install.sh | bash
 # Limit to one repo:  curl -fsSL ... | SCOPE=local bash
 set -e

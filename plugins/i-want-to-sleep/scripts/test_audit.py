@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Arthur Wang
 """Static audit of test changes since the night shift started (BASE..HEAD).
 
 Written by the Stop hook, not the model, to .agent-pipeline/test-audit.md.

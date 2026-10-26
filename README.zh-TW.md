@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="license MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.7.0-informational" alt="version 0.6.3">
+  <img src="https://img.shields.io/badge/version-0.7.1-informational" alt="version 0.6.3">
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL-lightgrey" alt="platform macOS | Linux | WSL">
   <img src="https://img.shields.io/badge/Python-3.8%2B-3776AB" alt="Python 3.8+">
   <img src="https://img.shields.io/badge/Claude%20Code-plugin-D97757" alt="Claude Code plugin">
@@ -178,9 +178,10 @@ claude plugin marketplace remove jaylooloomi
 /i-want-to-sleep:sleep 8 只提案        # 交代的做完；加分項只調研打分、不實作
 /i-want-to-sleep:wake               # 提前結束：做完手上這項就收工、交報告
 /i-want-to-sleep:wake 立刻          # 立刻收工，手上的變更以 [WIP-STOPPED] commit
+/i-want-to-sleep:stop               # 同 wake
 ```
 
-人不在電腦前也能叫停：從另一個終端機或 SSH 執行 `touch .agent-pipeline/STOP`，下一回合結束時它就會收工。Codex 上用 `$sleep 8`、`$wake`、`$wake 立刻`，或直接說「停，收工」。
+人不在電腦前也能叫停：從另一個終端機或 SSH 執行 `touch .agent-pipeline/STOP`，下一回合結束時它就會收工。Codex 上用 `$sleep 8`、`$wake` / `$stop`、`$wake 立刻`，或直接說「停，收工」。
 
 第一個數字是時數，後面的文字會當指示交給 skill。直接說「我要睡覺了」「幫我做 3 小時」也會觸發。
 
@@ -269,7 +270,7 @@ Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 |---|---|
 | Claude Code（CLI、桌面版、Remote Control）≥ 2.1.139 | ✅ 支援 |
 | claude.ai 網頁 / 手機聊天 | ❌ 無法無人看管地跑 session |
-| OpenAI Codex CLI ≥ 0.122 | ✅ 支援（0.6.0 起）——需在 `/hooks` 信任；無證據檢查 hook；指令是 `$sleep` / `$wake` |
+| OpenAI Codex CLI ≥ 0.122 | ✅ 支援（0.6.0 起）——需在 `/hooks` 信任；無證據檢查 hook；指令是 `$sleep` / `$wake` / `$stop` |
 | Cursor、Gemini CLI、Copilot CLI … | ❌ 尚未 |
 
 同一個 plugin 資料夾同時有 Claude Code manifest（`.claude-plugin/`）和 Codex manifest（`.codex-plugin/`）；Codex 執行同一套 hook 腳本，並為相容性提供 `CLAUDE_PLUGIN_ROOT`。Cursor、Gemini CLI、Copilot CLI 也有等價的 stop hook（見 [goal-loop](https://github.com/bodecloud/goal-loop)）。歡迎 PR。
@@ -280,7 +281,7 @@ Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 |---|---|
 | `plugins/i-want-to-sleep/skills/night-shift-job-generator/SKILL.md` | 流程：scope → 收尾 → 調研 → 評分 → 實作 → 報告 |
 | `plugins/i-want-to-sleep/skills/sleep/SKILL.md` | 開始夜班 — `/i-want-to-sleep:sleep`（Claude Code）、`$sleep`（Codex） |
-| `plugins/i-want-to-sleep/skills/wake/SKILL.md` | 提前結束 — `/i-want-to-sleep:wake`（Claude Code）、`$wake`（Codex） |
+| `plugins/i-want-to-sleep/skills/wake/SKILL.md`、`skills/stop/SKILL.md` | 提前結束 — `/i-want-to-sleep:wake` 或 `:stop`（Claude Code）、`$wake` 或 `$stop`（Codex） |
 | `plugins/i-want-to-sleep/hooks/hooks.json` | 註冊四個 hook（3 個 command、1 個 prompt） |
 | `plugins/i-want-to-sleep/scripts/night-shift-stop.sh` | Stop hook：推回去繼續；時限到要求收工 |
 | `plugins/i-want-to-sleep/scripts/guard-bash.sh` | PreToolUse：shell 指令防線 |
@@ -326,4 +327,4 @@ Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 
 ## 授權
 
-[MIT](LICENSE)
+[MIT](LICENSE) © 2026 Arthur Wang。可自由使用、修改、再散布，包含商業用途，條件是保留版權聲明與授權全文。本軟體依「現狀」提供，不附任何擔保——無人看管的 agent 在你 repo 裡做的事，責任在使用者。

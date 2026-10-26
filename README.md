@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="license MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.7.0-informational" alt="version 0.6.3">
+  <img src="https://img.shields.io/badge/version-0.7.1-informational" alt="version 0.6.3">
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL-lightgrey" alt="platform macOS | Linux | WSL">
   <img src="https://img.shields.io/badge/Python-3.8%2B-3776AB" alt="Python 3.8+">
   <img src="https://img.shields.io/badge/Claude%20Code-plugin-D97757" alt="Claude Code plugin">
@@ -178,9 +178,10 @@ Before the first run, check which branch you are on. The night-shift branch fork
 /i-want-to-sleep:sleep 8 propose only  # finish what you asked; research & score ideas, implement none
 /i-want-to-sleep:wake                # stop early: finish the current item, then wrap up and report
 /i-want-to-sleep:wake now            # stop now: commit work in progress as [WIP-STOPPED], then report
+/i-want-to-sleep:stop                # same as wake
 ```
 
-Not at the keyboard? From another terminal or over SSH, `touch .agent-pipeline/STOP` — it wraps up at the end of the current turn. On Codex: `$sleep 8`, `$wake`, `$wake now` — or just say "stop, wrap up".
+Not at the keyboard? From another terminal or over SSH, `touch .agent-pipeline/STOP` — it wraps up at the end of the current turn. On Codex: `$sleep 8`, `$wake` / `$stop`, `$wake now` — or just say "stop, wrap up".
 
 The first number is the duration in hours. Anything after it is passed to the skill as instructions. Saying "I'm going to sleep" or "take over for 3 hours" in plain language also triggers it.
 
@@ -268,7 +269,7 @@ The deterministic hooks are inert when `ACTIVE` is absent. The evidence-check ho
 |---|---|
 | Claude Code (CLI, desktop app, Remote Control) ≥ 2.1.139 | ✅ supported |
 | claude.ai web / mobile chat | ❌ cannot run a session unattended |
-| OpenAI Codex CLI ≥ 0.122 | ✅ supported (0.6.0+) — trust hooks via `/hooks`; no evidence-check hook; commands are `$sleep` / `$wake` |
+| OpenAI Codex CLI ≥ 0.122 | ✅ supported (0.6.0+) — trust hooks via `/hooks`; no evidence-check hook; commands are `$sleep` / `$wake` / `$stop` |
 | Cursor, Gemini CLI, Copilot CLI, … | ❌ not yet |
 
 The same plugin folder ships both a Claude Code manifest (`.claude-plugin/`) and a Codex manifest (`.codex-plugin/`); Codex runs the same hook scripts and exports `CLAUDE_PLUGIN_ROOT` for compatibility. Cursor, Gemini CLI and Copilot CLI have stop-hook equivalents too (see [goal-loop](https://github.com/bodecloud/goal-loop)). PRs welcome.
@@ -279,7 +280,7 @@ The same plugin folder ships both a Claude Code manifest (`.claude-plugin/`) and
 |---|---|
 | `plugins/i-want-to-sleep/skills/night-shift-job-generator/SKILL.md` | the procedure: scope → wrap-up → research → score → implement → report |
 | `plugins/i-want-to-sleep/skills/sleep/SKILL.md` | start a shift — `/i-want-to-sleep:sleep` (Claude Code), `$sleep` (Codex) |
-| `plugins/i-want-to-sleep/skills/wake/SKILL.md` | stop early — `/i-want-to-sleep:wake` (Claude Code), `$wake` (Codex) |
+| `plugins/i-want-to-sleep/skills/wake/SKILL.md`, `skills/stop/SKILL.md` | stop early — `/i-want-to-sleep:wake` or `:stop` (Claude Code), `$wake` or `$stop` (Codex) |
 | `plugins/i-want-to-sleep/hooks/hooks.json` | registers the four hooks (3 command, 1 prompt) |
 | `plugins/i-want-to-sleep/scripts/night-shift-stop.sh` | Stop hook: keep working; request wrap-up at the deadline |
 | `plugins/i-want-to-sleep/scripts/guard-bash.sh` | PreToolUse guard for shell commands |
@@ -325,4 +326,4 @@ Issues and PRs welcome. Run `claude plugin validate .` before opening a PR. If y
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE) © 2026 Arthur Wang. Free to use, modify and redistribute, including commercially, as long as the copyright notice and license text are kept. Provided as-is, without warranty — you are responsible for what an unattended agent does in your repository.

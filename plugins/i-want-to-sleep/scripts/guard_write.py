@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Arthur Wang
 """PreToolUse(Write|Edit|MultiEdit|apply_patch) guard for night shifts.
 
 Claude Code sends tool_input.file_path. Codex sends apply_patch with the whole

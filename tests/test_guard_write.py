@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Arthur Wang
 """Run: python3 tests/test_guard_write.py — covers Claude file_path, Codex apply_patch, and git-root fallback."""
 import json, os, subprocess, sys, tempfile
 here = os.path.dirname(os.path.abspath(__file__))

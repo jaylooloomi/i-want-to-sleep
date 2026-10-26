@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Arthur Wang
 """PreToolUse(Bash) guard for night shifts.
 
 Checks only what will actually execute: heredoc bodies and quoted strings are
