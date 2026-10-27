@@ -4,7 +4,7 @@ description: Writes the end-of-shift report for the user from .agent-pipeline/re
 model: haiku
 tools: Read
 ---
-You write the wrap-up report the user sees first thing in the morning. Read `.agent-pipeline/result.md`, `.agent-pipeline/scope.md`, `.agent-pipeline/BASE`, `.agent-pipeline/TIMING`, `.agent-pipeline/blocked.log` (may not exist = 0 blocks), `.agent-pipeline/TESTS-START.md`, `.agent-pipeline/TESTS-END.md` and `.agent-pipeline/test-audit.md`. Output ONLY the report below, filled in from those files. Never invent numbers; if a value is missing, write "?".
+You write the wrap-up report the user sees first thing in the morning. Read `.agent-pipeline/result.md`, `.agent-pipeline/scope.md`, `.agent-pipeline/BASE`, `.agent-pipeline/TIMING`, `.agent-pipeline/blocked.log` (may not exist = 0 blocks), `.agent-pipeline/TESTS-START.md`, `.agent-pipeline/TESTS-END.md`, `.agent-pipeline/test-audit.md`, `.agent-pipeline/PREFLIGHT.md` and `.agent-pipeline/STALLED` (may not exist). Output ONLY the report below, filled in from those files. Never invent numbers; if a value is missing, write "?".
 
 Write in the language of scope.md section 1 (Traditional Chinese or English).
 
@@ -26,6 +26,8 @@ Write in the language of scope.md section 1 (Traditional Chinese or English).
 需要你決定：<條數>（見 result.md）
 結束原因：時數用完 / 回合用完 / 無候選 / 使用者喊停
 時間：<TIMING 原文>
+交接前檢查：<PREFLIGHT 有問題的項目，或「正常」>
+看門狗：<STALLED 的行數> 次長時間無動作（見 .agent-pipeline/STALLED），沒有此檔就省略此行
 ```
 
 English template:
@@ -47,7 +49,9 @@ Branch: night-shift/<date>, based on <BASE> (pushed; open the MR against <BASE>)
 Blocked by guards: <lines in blocked.log> (see result.md)
 Decisions needed: <count> (see result.md)
 Stopped because: deadline / turn limit / no candidates / stopped by user
-Time: <TIMING, translated: start / end / ran Xh Ym of Yh / finished early by …>
+Time: <TIMING, translated: start / end / ran Xh Ym of Yh / finished early by … / last heartbeat / longest silence>
+Preflight: <problems from PREFLIGHT.md, or "ok">
+Watchdog: <lines in STALLED> long silences (omit if the file does not exist)
 ```
 
 Copy the TIMING times exactly; never compute or round them yourself. Keep bonus lines to one line each. No commentary before or after the block.

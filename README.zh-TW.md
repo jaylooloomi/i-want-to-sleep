@@ -7,12 +7,12 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="license MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.7.1-informational" alt="version 0.6.3">
+  <img src="https://img.shields.io/badge/version-0.8.0-informational" alt="version 0.6.3">
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL-lightgrey" alt="platform macOS | Linux | WSL">
   <img src="https://img.shields.io/badge/Python-3.8%2B-3776AB" alt="Python 3.8+">
   <img src="https://img.shields.io/badge/Claude%20Code-plugin-D97757" alt="Claude Code plugin">
   <img src="https://img.shields.io/badge/Codex-plugin-black" alt="Codex plugin">
-  <a href="tests"><img src="https://img.shields.io/badge/tests-59%20passing-brightgreen" alt="tests 59 passing"></a>
+  <a href="tests"><img src="https://img.shields.io/badge/tests-65%20passing-brightgreen" alt="tests 65 passing"></a>
   <a href="README.md"><img src="https://img.shields.io/badge/lang-English-green" alt="English"></a>
 </p>
 
@@ -57,6 +57,7 @@ Codex 上改用 `$sleep`：`$sleep 3 重點 效能`。
   ```bash
   claude --dangerously-skip-permissions
   ```
+  或用 [`nightshift` 啟動器](#其他)，多了防休眠和看門狗。
 
 **3. 在有工作進行中的 session 裡輸入**
 ```
@@ -95,6 +96,27 @@ $sleep 8
 </details>
 
 ### 其他
+
+<details>
+<summary><b>nightshift 啟動器：防休眠＋看門狗（建議）</b></summary>
+
+迴圈是簡單的部分；真正讓你早上看到「報告」還是「斷在半路的分支」的，是機器。`nightshift` 從 **agent 外面**照顧三件事：
+
+| 問題 | nightshift 做什麼 |
+|---|---|
+| 機器休眠，夜班停在某個工具呼叫中間 | 整個 session 期間用 `caffeinate`（macOS）或 `systemd-inhibit`（Linux）防止閒置休眠 |
+| agent 卡在某個提示上整晚不動 | 看門狗：夜班中超過 30 分鐘沒有任何工具呼叫，寫一行到 `.agent-pipeline/STALLED` |
+| 跑到 1:40 就死了，早上看起來像「做完了」 | session 結束時若沒收工，寫 `.agent-pipeline/INCOMPLETE.md`，附最後一次心跳的時間與工具 |
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/jaylooloomi/i-want-to-sleep/main/bin/nightshift -o ~/.local/bin/nightshift && chmod +x ~/.local/bin/nightshift
+nightshift                         # = claude --dangerously-skip-permissions，外加上面三項
+NIGHTSHIFT_AGENT=codex nightshift  # Codex
+NIGHTSHIFT_QUIET_MIN=20 nightshift # 看門狗門檻（分鐘）
+```
+
+闔上筆電螢幕在多數筆電上仍會強制休眠，防不了；長跑請用不關機的機器，或關掉闔蓋休眠。
+</details>
 
 <details>
 <summary><b>只想裝在單一 repo？</b></summary>
@@ -192,6 +214,7 @@ claude plugin marketplace remove jaylooloomi
 
 1. 看 session 裡的收工報告（做了什麼、參考來源、測試狀態、檔案、需要你決定的事）。細節在 `.agent-pipeline/result.md`。
    報告把**你交代的**和**它自己挑的**分開列，每項附 commit hash。**測試**一段對照交接時與收工時（通過／失敗、哪些失敗是交接時就有的），並附 hook 產生的**測試稽核**：被刪的測試檔、減少的案例或斷言、新增的 skip。
+   時間一行會列出**最後心跳**和**最長無動作時段**；若有 `.agent-pipeline/INCOMPLETE.md`，代表這次沒跑完，不是「沒事可做」。
    先看**被防線擋下**那段：每一次阻擋都由 hook 自己寫進 `.agent-pipeline/blocked.log`，result.md 再補上它當時想做什麼、被擋後怎麼處理。綠燈告訴你程式能跑；這段告訴你要不要讓它再跑一晚。
 2. 從 `night-shift/<date>` 開 MR，**目標是你出發的那條分支**（記在 `.agent-pipeline/BASE`）。每個加分項是獨立 commit。
 3. 方向不對？在同一個 session 直接說。
@@ -282,10 +305,13 @@ Step 6  push 分支、寫 result.md、在對話裡貼收工報告
 | `plugins/i-want-to-sleep/skills/night-shift-job-generator/SKILL.md` | 流程：scope → 收尾 → 調研 → 評分 → 實作 → 報告 |
 | `plugins/i-want-to-sleep/skills/sleep/SKILL.md` | 開始夜班 — `/i-want-to-sleep:sleep`（Claude Code）、`$sleep`（Codex） |
 | `plugins/i-want-to-sleep/skills/wake/SKILL.md`、`skills/stop/SKILL.md` | 提前結束 — `/i-want-to-sleep:wake` 或 `:stop`（Claude Code）、`$wake` 或 `$stop`（Codex） |
-| `plugins/i-want-to-sleep/hooks/hooks.json` | 註冊四個 hook（3 個 command、1 個 prompt） |
+| `plugins/i-want-to-sleep/hooks/hooks.json` | 註冊 hook（Stop ×2、PreToolUse ×2、PostToolUse 心跳） |
 | `plugins/i-want-to-sleep/scripts/night-shift-stop.sh` | Stop hook：推回去繼續；時限到要求收工 |
 | `plugins/i-want-to-sleep/scripts/guard-bash.sh` | PreToolUse：shell 指令防線 |
 | `plugins/i-want-to-sleep/scripts/guard-write.sh` | PreToolUse：檔案寫入防線 |
+| `plugins/i-want-to-sleep/scripts/heartbeat.sh` | PostToolUse：每次工具呼叫記一次心跳 |
+| `plugins/i-want-to-sleep/scripts/timing.py` | 算出開始／結束、最後心跳、最長無動作時段 |
+| `bin/nightshift` | agent 外的啟動器：防休眠、看門狗、未收工標記 |
 | `plugins/i-want-to-sleep/scripts/test_audit.py` | Stop hook 執行：標出夜班期間被刪除、弱化或 skip 的測試 |
 | `plugins/i-want-to-sleep/agents/scope-reviewer.md` | Haiku 子代理：scope.md 第二雙眼睛 |
 | `plugins/i-want-to-sleep/agents/scorer.md` | Haiku 子代理：獨立候選評分，並對照最近 30 天 commit 去重 |

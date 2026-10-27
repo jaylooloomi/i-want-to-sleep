@@ -10,6 +10,8 @@ P="$ROOT/.agent-pipeline"
 [ -f "$P/ACTIVE" ] || exit 0          # 不是夜班 → 正常停止
 # 每次 Stop 都重算測試稽核（hook 寫，不靠模型）：被刪、被 skip、斷言變少
 python3 "$(dirname "$0")/test_audit.py" "$ROOT" >/dev/null 2>&1 || true
+# 讓 skill 能直接呼叫 timing.py（skill 不知道 plugin 安裝路徑）
+mkdir -p "$P/bin" && cp -f "$(dirname "$0")/timing.py" "$P/bin/timing.py" 2>/dev/null || true
 [ -f "$P/DONE" ]   && exit 0          # 已收工 → 放行
 
 # 可用環境變數覆寫

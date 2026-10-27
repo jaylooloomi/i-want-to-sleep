@@ -7,12 +7,12 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="license MIT"></a>
-  <img src="https://img.shields.io/badge/version-0.7.1-informational" alt="version 0.6.3">
+  <img src="https://img.shields.io/badge/version-0.8.0-informational" alt="version 0.6.3">
   <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20WSL-lightgrey" alt="platform macOS | Linux | WSL">
   <img src="https://img.shields.io/badge/Python-3.8%2B-3776AB" alt="Python 3.8+">
   <img src="https://img.shields.io/badge/Claude%20Code-plugin-D97757" alt="Claude Code plugin">
   <img src="https://img.shields.io/badge/Codex-plugin-black" alt="Codex plugin">
-  <a href="tests"><img src="https://img.shields.io/badge/tests-59%20passing-brightgreen" alt="tests 59 passing"></a>
+  <a href="tests"><img src="https://img.shields.io/badge/tests-65%20passing-brightgreen" alt="tests 65 passing"></a>
   <a href="README.zh-TW.md"><img src="https://img.shields.io/badge/lang-繁體中文-green" alt="繁體中文"></a>
 </p>
 
@@ -57,6 +57,7 @@ Pick your agent and follow its three steps.
   ```bash
   claude --dangerously-skip-permissions
   ```
+  or the [`nightshift` launcher](#more-options), which adds keep-awake and a watchdog.
 
 **3. In a session that already has work in progress, type**
 ```
@@ -95,6 +96,27 @@ The small-model evidence-check hook is skipped (Codex ignores prompt-type hooks)
 </details>
 
 ### More options
+
+<details>
+<summary><b>nightshift launcher: keep-awake + watchdog (recommended)</b></summary>
+
+The loop is the easy part; whether you wake up to a report or a truncated branch is decided by the machine. `nightshift` handles three things from **outside the agent**:
+
+| Problem | What nightshift does |
+|---|---|
+| Machine sleeps and the shift stops mid tool call | Keeps it awake for the whole session with `caffeinate` (macOS) or `systemd-inhibit` (Linux) |
+| Agent sits on a prompt all night | Watchdog: no tool call for 30 min during a shift → a line in `.agent-pipeline/STALLED` |
+| A run that died at 1:40 looks "finished" in the morning | If the session ends without wrap-up, writes `.agent-pipeline/INCOMPLETE.md` with the last heartbeat |
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/jaylooloomi/i-want-to-sleep/main/bin/nightshift -o ~/.local/bin/nightshift && chmod +x ~/.local/bin/nightshift
+nightshift                         # = claude --dangerously-skip-permissions, plus the above
+NIGHTSHIFT_AGENT=codex nightshift  # Codex
+NIGHTSHIFT_QUIET_MIN=20 nightshift # watchdog threshold (minutes)
+```
+
+Closing a laptop lid still forces sleep on most laptops; for long runs use an always-on machine or disable lid sleep.
+</details>
 
 <details>
 <summary><b>Only want it in one repository?</b></summary>
@@ -192,6 +214,7 @@ The first number is the duration in hours. Anything after it is passed to the sk
 
 1. Read the wrap-up report in the session (what was done, sources, test status, files, decisions needed). Details in `.agent-pipeline/result.md`.
    The report splits **what you asked for** from **what it chose**, each with its commit hash. **Tests** compares handoff vs wrap-up (pass/fail, which failures were already there) and includes a hook-generated **test audit**: deleted test files, removed cases or assertions, new skips.
+   The time line shows the **last heartbeat** and the **longest silence**; a `.agent-pipeline/INCOMPLETE.md` means the run died, not that there was nothing left to do.
    Check **Blocked by guards** first: every attempt the hooks stopped is logged by the hook itself in `.agent-pipeline/blocked.log`, and `result.md` adds what the agent was trying to do and what it did instead. Green tests tell you the code works; this tells you whether to give it another night.
 2. Open a merge request from `night-shift/<date>` **into the branch you started from** (recorded in `.agent-pipeline/BASE`). Each bonus item is an independent commit.
 3. Wrong direction? Say so in the same session.
@@ -281,10 +304,13 @@ The same plugin folder ships both a Claude Code manifest (`.claude-plugin/`) and
 | `plugins/i-want-to-sleep/skills/night-shift-job-generator/SKILL.md` | the procedure: scope → wrap-up → research → score → implement → report |
 | `plugins/i-want-to-sleep/skills/sleep/SKILL.md` | start a shift — `/i-want-to-sleep:sleep` (Claude Code), `$sleep` (Codex) |
 | `plugins/i-want-to-sleep/skills/wake/SKILL.md`, `skills/stop/SKILL.md` | stop early — `/i-want-to-sleep:wake` or `:stop` (Claude Code), `$wake` or `$stop` (Codex) |
-| `plugins/i-want-to-sleep/hooks/hooks.json` | registers the four hooks (3 command, 1 prompt) |
+| `plugins/i-want-to-sleep/hooks/hooks.json` | registers the hooks (Stop ×2, PreToolUse ×2, PostToolUse heartbeat) |
 | `plugins/i-want-to-sleep/scripts/night-shift-stop.sh` | Stop hook: keep working; request wrap-up at the deadline |
 | `plugins/i-want-to-sleep/scripts/guard-bash.sh` | PreToolUse guard for shell commands |
 | `plugins/i-want-to-sleep/scripts/guard-write.sh` | PreToolUse guard for file writes |
+| `plugins/i-want-to-sleep/scripts/heartbeat.sh` | PostToolUse: one heartbeat per tool call |
+| `plugins/i-want-to-sleep/scripts/timing.py` | start/end, last heartbeat, longest silence |
+| `bin/nightshift` | launcher outside the agent: keep-awake, watchdog, incomplete-run marker |
 | `plugins/i-want-to-sleep/scripts/test_audit.py` | run by the Stop hook: flags tests deleted, weakened or skipped since the shift began |
 | `plugins/i-want-to-sleep/agents/scope-reviewer.md` | Haiku subagent: second reading of `scope.md` |
 | `plugins/i-want-to-sleep/agents/scorer.md` | Haiku subagent: independent candidate scoring, dedup against last 30 days of commits |

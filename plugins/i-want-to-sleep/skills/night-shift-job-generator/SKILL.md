@@ -36,6 +36,11 @@ echo $(( $(date +%s) + HOURS * 3600 )) > .agent-pipeline/DEADLINE
 ```
 
 - DEADLINE 是 Stop hook 判斷收工的唯一時間依據；一定要寫，寫錯整晚不會停。
+- **交接前檢查（preflight）**：使用者可能還沒離開，這一步的結果要**在第一則回覆就說出來**，並寫入 `.agent-pipeline/PREFLIGHT.md`：
+  - 推送權限：`git push --dry-run -u origin night-shift/<date>`（失敗＝早上推不上去；沒有 remote 也記下）
+  - 會用到的 CLI 登入狀態：例如 `gh auth status`、雲端 CLI 的 token 到期時間——半夜過期需要瀏覽器登入，沒人能按
+  - 防休眠：macOS `pmset -g | grep -E ' sleep|lidwake'`、Linux `systemd-inhibit --list`；沒有用 `nightshift` 啟動器時提醒使用者「闔上筆電會讓夜班停在半路」
+  - 任何一項有問題：照樣開工，但在第一則回覆用 ⚠️ 列出，讓使用者睡前還有機會修
 - **測試基線**：開分支後、動任何程式碼前，跑一次完整的單元測試，寫入 `.agent-pipeline/TESTS-START.md`：用的指令、通過／失敗／略過數、每個失敗測試的名稱。這是「交接時就已經壞的」證據，收工時拿來對照。
 - BASE 是早上報告的比較基準。凡是本文件寫 `$BASE` 的地方，一律讀 `.agent-pipeline/BASE`，不要寫死 main。
 - 有 stash 的變更要寫進 result.md「需要你決定的事」。
@@ -146,11 +151,7 @@ Score = (Impact × Urgency) / (Effort × Blast)
 
 Stop hook 會在時間到或回合用完時要求收尾；收到那則指示後，或 `/sleep 只收尾` 做完後：
 
-0. 寫入時間紀錄（報告要用，不可省略）：
-   ```bash
-   python3 -c "import time;P='.agent-pipeline/';s=int(open(P+'START').read());d=int(open(P+'DEADLINE').read());e=int(time.time());open(P+'END','w').write(str(e));f=lambda t:time.strftime('%Y-%m-%d %H:%M',time.localtime(t));h=lambda x:f'{x//3600}h{x%3600//60:02d}m';r=d-e;open(P+'TIMING','w').write(f'開始 {f(s)}｜結束 {f(e)}｜實際執行 {h(e-s)}／預定 {h(d-s)}'+(f'｜提早 {h(r)} 收工' if r>60 else '')+'\n')"
-   cat .agent-pipeline/TIMING
-   ```
+0. 寫入時間紀錄（報告要用，不可省略）：`python3 .agent-pipeline/bin/timing.py`（Stop hook 會把它放到那裡）。輸出含開始／結束、實際執行、提早多久、**最後心跳**、**最長無動作時段**。
 1. 用 TESTS-START.md 同一個指令再跑一次完整測試，寫入 `.agent-pipeline/TESTS-END.md`（同樣格式）。
 2. 印出 `git log --oneline $BASE..HEAD`、`git diff $BASE --name-only`、最後一次 build/test 結果（`$BASE` 讀自 `.agent-pipeline/BASE`）。
 2. 補完 result.md（格式如下）。

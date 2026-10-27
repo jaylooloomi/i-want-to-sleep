@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Arthur Wang
+#
+# nightshift — start Claude Code (or Codex) for a night shift, from OUTSIDE the agent:
+#   * keeps the machine awake for the life of the session (macOS caffeinate / Linux systemd-inhibit)
+#   * watchdog: if ACTIVE and no tool call for NIGHTSHIFT_QUIET_MIN minutes, appends to .agent-pipeline/STALLED
+#   * on exit: if the shift never wrapped up (ACTIVE, no DONE), writes .agent-pipeline/INCOMPLETE.md
+#     with the last heartbeat, so a run that died at 1:40 doesn't look like "finished, nothing to do"
+#
+# usage: nightshift [agent args…]        NIGHTSHIFT_AGENT=codex nightshift
+set -u
+AGENT="${NIGHTSHIFT_AGENT:-claude}"
+QUIET_MIN="${NIGHTSHIFT_QUIET_MIN:-30}"
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+P="$ROOT/.agent-pipeline"
+fmt() { python3 -c "import time,sys;print(time.strftime('%Y-%m-%d %H:%M',time.localtime(int(sys.argv[1]))))" "$1" 2>/dev/null || echo "$1"; }
+
+case "$AGENT" in
+  claude) CMD=(claude --dangerously-skip-permissions "$@") ;;
+  codex)  CMD=(codex --yolo "$@") ;;
+  *) echo "NIGHTSHIFT_AGENT must be claude or codex" >&2; exit 1 ;;
+esac
+
+# keep awake
+if command -v caffeinate >/dev/null 2>&1; then
+  CMD=(caffeinate -dims "${CMD[@]}"); AWAKE="caffeinate"
+elif command -v systemd-inhibit >/dev/null 2>&1; then
+  CMD=(systemd-inhibit --what=idle:sleep --why="nightshift" "${CMD[@]}"); AWAKE="systemd-inhibit"
+else
+  AWAKE="none"
+  echo "⚠️  nightshift: no caffeinate/systemd-inhibit found — make sure this machine will not sleep." >&2
+fi
+echo "nightshift: agent=$AGENT keep-awake=$AWAKE watchdog=${QUIET_MIN}m repo=$ROOT" >&2
+echo "  (closing a laptop lid still sleeps most laptops; use an always-on machine or disable lid sleep)" >&2
+
+# watchdog
+(
+  while sleep 60; do
+    [ -f "$P/ACTIVE" ] || continue
+    [ -f "$P/DONE" ] && continue
+    hb=$(cut -d' ' -f1 "$P/HEARTBEAT" 2>/dev/null || cat "$P/START" 2>/dev/null || echo 0)
+    now=$(date +%s)
+    if [ $(( now - hb )) -gt $(( QUIET_MIN * 60 )) ]; then
+      echo "$(fmt "$now")  no tool call for $(( (now - hb) / 60 )) min (last heartbeat $(fmt "$hb"): $(cut -d' ' -f2- "$P/HEARTBEAT" 2>/dev/null))" >> "$P/STALLED"
+    fi
+  done
+) &
+WD=$!
+
+finish() {
+  kill "$WD" 2>/dev/null
+  if [ -f "$P/ACTIVE" ] && [ ! -f "$P/DONE" ]; then
+    hb=$(cut -d' ' -f1 "$P/HEARTBEAT" 2>/dev/null || echo "")
+    {
+      echo "# ⚠️ Night shift ended WITHOUT wrap-up"
+      echo
+      echo "- Session exited: $(fmt "$(date +%s)")"
+      [ -n "$hb" ] && echo "- Last heartbeat: $(fmt "$hb") — $(cut -d' ' -f2- "$P/HEARTBEAT")" || echo "- No heartbeat recorded"
+      [ -f "$P/STALLED" ] && { echo "- Watchdog notes:"; sed 's/^/  - /' "$P/STALLED"; }
+      echo
+      echo "There is no report for this run. Work done before the last heartbeat is in the night-shift branch's commits;"
+      echo "anything after it was lost. Check \`git log\` and \`.agent-pipeline/result.md\` (may be partial)."
+    } > "$P/INCOMPLETE.md"
+    echo "⚠️  nightshift: run ended without wrap-up — see $P/INCOMPLETE.md" >&2
+  fi
+}
+trap finish EXIT
+"${CMD[@]}"

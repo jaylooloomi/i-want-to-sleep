@@ -41,6 +41,17 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/scripts/heartbeat.sh",
+            "timeout": 5
+          }
+        ]
+      }
     ]
   }
 }

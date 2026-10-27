@@ -1,6 +1,6 @@
 {
   "name": "i-want-to-sleep",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "Say \"I'm going to sleep\" and the agent takes over for N hours on a guarded night-shift branch.",
   "author": {
     "name": "Arthur Wang",
